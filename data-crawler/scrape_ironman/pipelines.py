@@ -30,6 +30,8 @@ class RaceResultsExportPipeline(object):
         category = item['item_category']
         if category == 'race_info':
             file = f'{config["race_folder"]}/races.jl'
+        elif category == 'athletes_count':
+            file = f'{config["race_folder"]}/races-athletes-count.jl'
         elif category == 'result_entry':
             race_id = item['race_id']
             race_date = item['race_date']
@@ -38,14 +40,15 @@ class RaceResultsExportPipeline(object):
             raise Error("The received item doesn't have a valid category")
         return file
 
-    def get_exporter_for_item(self, item):
+    def get_exporter_for_item(self, item, hasDate=False):
         file = self.get_exporter_key_for_item(item)
         if file not in self.all_exporters:
             f = open(file, 'wb')
             exporter = JsonLinesItemExporter(f)
             exporter.start_exporting()
             self.all_exporters[file] = exporter
-            print(f'----- Starting crawling process for {item["race_id"]} ({item["race_date"]})')
+            if hasDate:
+                print(f'----- Starting crawling process for {item["race_id"]} ({item["race_date"]})')
         return self.all_exporters[file]
 
     def format_item(self, item):
@@ -57,11 +60,16 @@ class RaceResultsExportPipeline(object):
           except:
               month = day = year = None
           try:
-              root,region,race_type,iron_name = re.match('(.*)/(.*)/(.*)/(.*).asp', item['website']).groups()
+              if 'inactive' not in item['website']:
+                  root,region,race_type,iron_name = re.match(
+                      '(.*)/(.*)/(.*)/(.*).asp', item['website']).groups()
+              else:
+                  root,region,race_type,iron_name = re.match(
+                      '(.*)/(.*)/(.*)/inactive/(.*).asp', item['website']).groups()
           except:
               race_type = region = None
           formatted_item = {
-              'id': item['id'],
+              'id': item['race_id'],
               'name': item['name'],
               'type': race_type,
               'region': region,
@@ -80,28 +88,45 @@ class RaceResultsExportPipeline(object):
               key: val for key,val in item.items() 
                   if key not in ['item_category', 'race_id', 'race_date']
           }
+      elif category == 'athletes_count':
+          race_id = item['race_id']
+          race_date = item['race_date']
+          count = item['count']
+          race_region = item['race_region']
+          formatted_item = {
+            'id': race_id,
+            'date': race_date,
+            'region': race_region,
+            'count': count
+          }
 
       return formatted_item
 
     def process_item(self, item, spider):
 
-        if item and item.get('category') == 'crawl_end':
+        if item and item.get('item_category') == 'crawl_end':
             file = self.get_exporter_key_for_item({
               'item_category': 'result_entry',
               'race_id': item['race_id'],
               'race_date': item['race_date']
               })
             # close associated exporter
-            exporter_to_close = self.all_exporters[file]
-            exporter_to_close.finish_exporting()
-            exporter_to_close.file.close()
-            # remove exporter from active exporters
-            del self.all_exporters[file]
-            print(f'===> Crawling for {item["race_id"]} stopped at bib {item["current_bib"]}.')
-            print(f'==========> File {file} was closed.')
+            exporter_to_close = self.all_exporters.get(file)
+            if exporter_to_close:
+                exporter_to_close.finish_exporting()
+                exporter_to_close.file.close()
+                # remove exporter from active exporters
+                del self.all_exporters[file]
+                print(f'===> Crawling for {item["race_id"]} stopped at bib {item["current_bib"]} ({item["status"]}).')
+                print(f'==========> File {file} was closed.')
+            else:
+                print(f'===> Crawling for {item["race_id"]} stopped at bib {item["current_bib"]} ({item["status"]}).')
 
         else:
-            exporter= self.get_exporter_for_item(item)
+            if item.get('item_category') == 'result_entry':
+                exporter= self.get_exporter_for_item(item, hasDate=True)
+            else:
+                exporter= self.get_exporter_for_item(item, hasDate=False)
             formatted_item = self.format_item(item)
             exporter.export_item(formatted_item)
 

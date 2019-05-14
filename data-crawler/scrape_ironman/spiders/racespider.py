@@ -27,12 +27,20 @@ class RacesSpider(scrapy.Spider):
             race_id = race.xpath(".//header/a/@href").re('race=(.+)&y=')
             race_id = race_id[0] if len(race_id)>0 else race_title.lower().replace(' ', '')
 
+            # Exceptions:
+            # Cozumel: race id is different than name!
+            if race_id == 'cozumel70.3':
+                race_id = 'cancun70.3'
+            # Jönköping: race id is different than name!
+            if race_id =='J\u00f6nk\u00f6ping':
+                race_id = 'joenkoeping70.3'
+
             # extract some features
             cal,date,loc,city = race.xpath(".//ul/li/descendant::*/text()").getall()
 
             race_info = {
               'item_category': 'race_info',
-              'id': race_id,
+              'race_id': race_id,
               'name': race_title,
               'date': date,
               'location': city,
