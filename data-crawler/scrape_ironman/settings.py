@@ -14,6 +14,7 @@ BOT_NAME = 'scrape_ironman'
 SPIDER_MODULES = ['scrape_ironman.spiders']
 NEWSPIDER_MODULE = 'scrape_ironman.spiders'
 
+# only log info
 LOG_LEVEL = 'INFO'
 
 

@@ -6,8 +6,26 @@ import scrapy
 from scrapy.spidermiddlewares.httperror import HttpError
 from twisted.internet.error import DNSLookupError
 from twisted.internet.error import TimeoutError, TCPTimedOutError
+  
+# use to select only specific races.
+# if no selection, still declare the global variable as it is used for conditional filtering in parse_results.
+race_selection = None
+# race_selection = [
+#   { "id": "monterrey70.3", "years": ["2018"] },
+#   { "id": "austria70.3", "years": ["2018"] },
+#   { "id": "australia", "years": ["2015", "2016", "2017", "2018", "2019"] },
+#   { "id": "coquimbo70.3", "years": ["2017"] },
+#   { "id": "uk", "years": ["2013"] },
+#   { "id": "monttremblant70.3", "years": ["2018"] },
+#   { "id": "lakeplacid", "years": ["2005"] },
+#   { "id": "branson70.3", "years": ["2010"] },
+#   { "id": "branson70.3", "years": ["2010"] },
+#   { "id": "regensburg", "years": ["2012"] },
+#   { "id": "austria70.3", "years": ["2018"] },
+#   { "id": "canada70.3", "years": ["2018"] },
+# ]
     
-def get_races_urls(file):
+def get_races_urls(file, selection=None):
     # read file created by racespider
     urls = set()
     races = []
@@ -15,13 +33,17 @@ def get_races_urls(file):
         data = [json.loads(line.strip()) for line in f.readlines()]
     for race in data:
         if race:
+            if selection:
+                if not any(race_id.lower() in race['id'].lower() for race_id in map(lambda x: x['id'], selection)):
+                    continue
             root = re.match('(.*).asp', race['website']).group(1)
             race_results_url = f"{root}/results.aspx"
             if race_results_url not in urls:
                 races.append({'id': race['id'], 'url': race_results_url, 'region': race['region']})
                 urls.add(race_results_url)
-    # add world championship 70.3 (to also get female results)
-    races.append({'id': 'worldchampionship70.3', 'region': 'americas' , 'url': 'http://www.ironman.com/triathlon/events/americas/ironman-70.3/70.3-world-championship-womens-race/results.aspx'})
+    if not selection:
+        # add world championship 70.3 (to also get female results)
+        races.append({'id': 'worldchampionship70.3', 'region': 'americas' , 'url': 'http://www.ironman.com/triathlon/events/americas/ironman-70.3/70.3-world-championship-womens-race/results.aspx'})
     return races
 
   
@@ -54,8 +76,8 @@ class AthletesCountSpider(scrapy.Spider):
         ''' 
         From race name, infer url for race results page and navigate there
         '''
-        races = get_races_urls('data/races/races.jl')
-        # races=[{'id': 'worldchampionship70.3', 'region': 'americas' , 'url': 'http://www.ironman.com/triathlon/events/americas/ironman-70.3/70.3-world-championship-womens-race/results.aspx'}]
+        races = get_races_urls('data/races/races.jl', race_selection)
+
         # construct request for each race results page
         all_race_requests = []
         for race in races:
@@ -87,8 +109,21 @@ class AthletesCountSpider(scrapy.Spider):
                                                              errback=self.errback_httpbin)
                 # infer url for details request of bib 1
                 race_date = re.match('.*rd=([0-9]+)', result_url).group(1)
+
+                # if we work only on selection of races
+                if race_selection:
+                    race_selected = list(filter(lambda x: x["id"].lower() == race_id.lower() , race_selection))
+                    # make sure there is actually some data
+                    if not len(race_selected)>0:
+                        continue
+                    selected_years = race_selected[0]["years"]
+                    # filter by year if years selection is given
+                    if len(selected_years) != 0:
+                        if not any(year in race_date for year in selected_years):
+                            continue
+
                 root_url = result_url.split("#")[0] # in case there is a hash identifier
-                details_bib1_url = self._get_details_url_for_bib(1, root_url, race_id)
+                details_bib1_url = self._get_details_url_for_bib(0, root_url, race_id)
 
                 request_results.meta.update({
                     'race_id': race_id,
@@ -112,7 +147,7 @@ class AthletesCountSpider(scrapy.Spider):
                   url = rows[0].xpath(".//td/a/@href").get()
                   result_url = f"{response.url}{url.split('&race')[0]}"
                   race_date = re.match('.*rd=([0-9]+)', result_url).group(1)
-                  details_bib1_url = self._get_details_url_for_bib(1, result_url, race_id)
+                  details_bib1_url = self._get_details_url_for_bib(0, result_url, race_id)
                   request_results = scrapy.Request(result_url, callback=self.parse_athletes_count,
                                                                errback=self.errback_httpbin)
                   request_results.meta.update({

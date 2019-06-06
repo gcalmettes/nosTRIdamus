@@ -3,6 +3,7 @@ import scrapy
 
 class RacesSpider(scrapy.Spider):
     name = 'racespider'
+    
     # allowed_domains = ['http://www.ironman.com/events/triathlon-races.aspx']
     start_urls = ['http://www.ironman.com/triathlon/coverage/past.aspx']
 

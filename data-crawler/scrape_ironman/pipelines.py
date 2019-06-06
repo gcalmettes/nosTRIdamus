@@ -103,7 +103,7 @@ class RaceResultsExportPipeline(object):
       return formatted_item
 
     def process_item(self, item, spider):
-
+        # depending on category received, save in appropriate file
         if item and item.get('item_category') == 'crawl_end':
             file = self.get_exporter_key_for_item({
               'item_category': 'result_entry',

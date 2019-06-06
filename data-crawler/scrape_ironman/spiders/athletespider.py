@@ -35,17 +35,14 @@ class AthleteSpider(AthletesCountSpider):
                 'race_date': race_date,
                 'n_athletes_total': athletes_count,
                 'n_athletes_scraped': 0,
-                'current_bib': 1,
-                'blanks_count': 0
+                'current_bib': 0
             })
             yield details_bib1_request
-
 
     def parse_athlete_details(self, response):
         race_id = response.meta['race_id']
         race_date = response.meta['race_date']
         current_bib = response.meta['current_bib']
-        blanks_count = response.meta['blanks_count']
         n_athletes_total = response.meta['n_athletes_total']
         n_athletes_scraped = response.meta['n_athletes_scraped']
 
@@ -63,17 +60,15 @@ class AthleteSpider(AthletesCountSpider):
 
         # continue only if there is a name
         if not name or name == '':
-            # increase blank count
-            blanks_count += 1
             # safeguard if n_athletes_count is wrong:
-            # stop if no info for bibs for more than 5000 bibs in a row
-            if blanks_count >= 3500:
+            # a bib number cannot be greater than 10000
+            if current_bib >= 10000:
                 yield {
                     'item_category': 'crawl_end',
                     'race_id': race_id,
                     'race_date': race_date,
                     'current_bib': current_bib,
-                    'status': 'REACHED BLANKS LIMIT'
+                    'status': 'REACHED BIB 10000 LIMIT'
                 }
             else:
                 # try next bib
@@ -88,14 +83,10 @@ class AthleteSpider(AthletesCountSpider):
                     'race_date': race_date,
                     'n_athletes_total': n_athletes_total,
                     'n_athletes_scraped': n_athletes_scraped,
-                    'current_bib': next_bib,
-                    'blanks_count': blanks_count
+                    'current_bib': next_bib
                 })
                 yield details_next_bib_request
         else:
-            # reset blanks count
-            blanks_count = 0
-
             ranks = result_content.xpath(".//header/div/descendant::*/text()").getall()
             for i in range(int(len(ranks)/2)):
                 athlete[ranks[i*2].lower().replace(' ', '')] = ranks[i*2+1] if ranks[i*2+1] and '---' not in ranks[i*2+1] else None
@@ -160,8 +151,7 @@ class AthleteSpider(AthletesCountSpider):
                     'race_date': race_date,
                     'n_athletes_total': n_athletes_total,
                     'n_athletes_scraped': n_athletes_scraped,
-                    'current_bib': next_bib,
-                    'blanks_count': blanks_count
+                    'current_bib': next_bib
                 })
                 yield details_next_bib_request
             
