@@ -86,16 +86,31 @@ class RacesDescriptionSpider(scrapy.Spider):
         race_region = response.meta['race_region']
         race_location = response.meta['race_location']
 
-        description = self.get_description_from_page(response)
+        # specific race description? 
+        aboutThisRace = response.xpath("//*/text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'))='about this race']/parent::*/@href").get()
+        if (aboutThisRace and response.meta.get('first_time', True)):
+            about_request = scrapy.Request(aboutThisRace, callback=self.parse_results,
+                                                          errback=self.errback_httpbin)
+            about_request.meta.update({
+                'race_id': race_id,
+                'race_name': race_name,
+                'race_region': race_region,
+                'race_location': race_location,
+                'first_time': False
+            })
+            yield about_request
 
-        yield {
-            'item_category': 'race_description',
-            'id': race_id,
-            'name': race_name,
-            'region': race_region,
-            'location': race_location,
-            'description': description
-        }
+        else:
+            description = self.get_description_from_page(response)
+
+            yield {
+                'item_category': 'race_description',
+                'id': race_id,
+                'name': race_name,
+                'region': race_region,
+                'location': race_location,
+                'description': description
+            }
    
 
     def errback_httpbin(self, failure):
