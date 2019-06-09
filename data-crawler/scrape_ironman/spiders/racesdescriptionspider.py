@@ -90,10 +90,10 @@ class RacesDescriptionSpider(scrapy.Spider):
 
         yield {
             'item_category': 'race_description',
-            'race_id': race_id,
-            'race_name': race_name,
-            'race_region': race_region,
-            'race_location': race_location,
+            'id': race_id,
+            'name': race_name,
+            'region': race_region,
+            'location': race_location,
             'description': description
         }
    
