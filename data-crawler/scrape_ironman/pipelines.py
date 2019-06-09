@@ -30,6 +30,8 @@ class RaceResultsExportPipeline(object):
         category = item['item_category']
         if category == 'race_info':
             file = f'{config["race_folder"]}/races.jl'
+        elif category == 'race_description':
+            file = f'{config["race_folder"]}/races-description.jl'
         elif category == 'athletes_count':
             file = f'{config["race_folder"]}/races-athletes-count.jl'
         elif category == 'result_entry':
@@ -81,6 +83,12 @@ class RaceResultsExportPipeline(object):
               'website': item['website'],
               'img_url': item['images'][0]['url'],
               'img_path': item['images'][0]['path']
+          }
+
+      elif category == 'race_description':
+          formatted_item = {
+              key: val for key,val in item.items() 
+                  if key not in ['item_category']
           }
 
       elif category == 'result_entry':
