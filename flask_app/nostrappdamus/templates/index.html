@@ -59,8 +59,6 @@
       const pickedRace = document.getElementById('race-input').value
       const filterRace = document.querySelector('input[name="options"]:checked').value
 
-      console.log(pickedRace, filterRace)
-
       const locations = await postData('/recommend', {race: raceslist[pickedRace], filterBy: filterRace})
         .then(d => {
           const results = d.data

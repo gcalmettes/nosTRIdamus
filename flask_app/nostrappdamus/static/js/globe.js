@@ -8,6 +8,7 @@ const tooltip = d3.select("body")
 // don't reload data on resize
 let land,
     timer,
+    timer_on = true,
     context, 
     svg_,
     g_,
@@ -72,8 +73,8 @@ async function globeComponent(selection, props) {
   path_svg = d3.geoPath(projection)
 
   // Compute the bounds of the land, then derive scale & translate.
-  const bounds = path.bounds(land),
-        scale = .9 / Math.max((bounds[1][0] - bounds[0][0]) / width, (bounds[1][1] - bounds[0][1]) / height),
+  const bounds = [[-1, -1], [1, 1]] //path.bounds(land),
+        scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / width, (bounds[1][1] - bounds[0][1]) / height),
         translate = [(width - scale * (bounds[1][0] + bounds[0][0])) / 2, (height - scale * (bounds[1][1] + bounds[0][1])) / 2]
 
   // Update the projection to use computed scale & translate.
@@ -92,15 +93,24 @@ async function globeComponent(selection, props) {
 
   drawGlobe({ context, svg, g, width, height, path, path_svg, backpath, land, projection, backprojection, locations })
 
-  // if (timer) timer.stop()
-  // timer = d3.timer(elapsed => {
-  //   const rotate = projection.rotate();
-  //   rotate[0] += velocity * 20;
-  //   projection.rotate(rotate);
-  //   drawGlobe({ context, svg: svg_, g: g_, width: width_, height: height_, path, path_svg, backpath, land, projection, backprojection, locations })
-  // });
+  if (timer) {
+    timer.stop()
+  } else {
+    if (timer_on) timer = d3.timer(elapsed => {
+      const rotate = projection.rotate();
+      rotate[0] += velocity * 20;
+      projection.rotate(rotate);
+      drawGlobe({ context, svg: svg_, g: g_, width: width_, height: height_, path, path_svg, backpath, land, projection, backprojection, locations })
+    });
+  }
   
-  d3.geoInertiaDrag(svg, () => drawGlobe({ context, svg: svg_, g: g_, width: width_, height: height_, path, path_svg, backpath, land, projection, backprojection, locations }))
+  d3.geoInertiaDrag(svg, () => {
+    timer_on = false
+    timer.stop();
+    drawGlobe({ context, svg: svg_, g: g_, width: width_, height: height_,
+                 path, path_svg, backpath, land, projection, backprojection,
+                locations })
+  })
   canvas.style('cursor', 'move')
 }
 
