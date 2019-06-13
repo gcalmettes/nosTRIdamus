@@ -1,201 +1,206 @@
-const container = document.getElementById('globe');
+const container = d3.select('#globe')
 
+// div to be used to put info when mouseover
 const tooltip = d3.select("body")
   .append("div") 
     .attr("class", "tooltip")       
-    .style("opacity", 0);
+    .style("opacity", 0)
 
-// don't reload data on resize
-let land,
-    timer,
-    timer_on = true,
-    context, 
-    svg_,
-    g_,
-    width_, 
-    height_, 
-    path, 
-    path_svg,
-    backpath, 
-    projection, 
-    backprojection,
-    locations = [],
-    initialized = false
+let updateWorld, 
+    drawWorld, 
+    drawLocations,
+    setLocations,
+    timerWorld,
+    runTimerWorld = true
 
-async function globeComponent(selection, props) {
-  const { className, locations } = props;
-  const { canvas, svg, g, width, height } = createCanvas({ selection, className })
 
-  // keep as global variables
-  width_ = width
-  height_ = height
-  svg_ = svg
-  g_ = g
+d3.json("https://unpkg.com/world-atlas/world/110m.json")
+    .then(worldData => {
+      const world = topojson.feature(worldData, worldData.objects.land)
+      const { updateScene, drawGlobeOnCanvas, drawLocationOnSVG, updateLocations } = renderWorld({ world })
+
+      // update global variables
+      updateWorld = updateScene
+      drawWorld = drawGlobeOnCanvas
+      drawLocations = drawLocationOnSVG
+      setLocations = updateLocations
+
+      triggerOnResize(() => updateWorld())
+
+    })
+    .catch(error => console.log(error))
+
+
+function renderWorld({ world }) {
+
+  let { canvas, svg, g, width, height } = createCanvasSvgLayers({ selection: container, className: 'globe' })
 
   context = canvas.node().getContext("2d");
 
   // retina display
-  const devicePixelRatio = window.devicePixelRatio || 1;
-  canvas.style('width', canvas.attr('width')+'px');
-  canvas.style('height', canvas.attr('height')+'px');
-  canvas.attr('width', canvas.attr('width') * devicePixelRatio);
-  canvas.attr('height', canvas.attr('height') * devicePixelRatio);
-  context.scale(devicePixelRatio,devicePixelRatio);
+  const devicePixelRatio = window.devicePixelRatio || 1
+  canvas.style('width', canvas.attr('width')+'px')
+  canvas.style('height', canvas.attr('height')+'px')
+  canvas.attr('width', canvas.attr('width') * devicePixelRatio)
+  canvas.attr('height', canvas.attr('height') * devicePixelRatio)
+  context.scale(devicePixelRatio,devicePixelRatio)
 
-  // load world data
-  if (!land) {
-    land = await d3.json("https://unpkg.com/world-atlas/world/110m.json")
-      .then(world => topojson.feature(world, world.objects.land))
-      .catch(error => console.log(error))
-  }
-  
-  const velocity = .01;
-
-  if (!initialized) {
-    initialized = true
-    projection = d3.geoOrthographic()
+  // projections
+  const projection = d3.geoOrthographic()
       .scale(1)
       .translate([0, 0])
       .rotate([-10,-30])
-    path = d3.geoPath()
+  const backprojection = d3.geoProjection((a,b) => d3.geoOrthographicRaw(-a,b))
+      .clipAngle(90)
+      .translate(projection.translate())
+      .scale(projection.scale())
+  const pathCanvas = d3.geoPath()
       .projection(projection)
       .context(context)
-  } else {
+  const backpathCanvas = d3.geoPath()
+      .projection(backprojection)
+      .context(context)
+  const pathSvg = d3.geoPath()
+      .projection(projection)
+
+
+  // initial setup
+  let locations = [] // no city locations
+  updateScene()
+
+  // rotating earth
+  const velocity = .01
+  if (runTimerWorld) {
+    timerWorld = d3.timer(elapsed => {
+      const rotate = projection.rotate()
+      rotate[0] += velocity * 20
+      projection.rotate(rotate)
+
+      drawGlobeOnCanvas()
+      drawLocationOnSVG()
+    })
+  }
+
+  // Set up Fil's d3-geoInertia
+   const inertia = d3.geoInertiaDrag(svg, () => {
+    runTimerWorld = false
+    timerWorld.stop();
+    drawGlobeOnCanvas()
+    drawLocationOnSVG()
+  }, projection)
+
+
+  // FUNCTIONS
+
+  function updateLocations({ cities }) {
+    locations = cities
+  }
+
+  function updateScene(){
+    const containerInfo = container.node().getBoundingClientRect()
+    width = containerInfo.width
+    height = containerInfo.height
+    updateProjection()
+    drawGlobeOnCanvas()
+    drawLocationOnSVG()
+  }
+
+  function updateProjection(){
+    // Compute the bounds of the land, then derive scale & translate.
+    const bounds = [[-1, -1], [1, 1]] //path.bounds(world),
+          scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / width, (bounds[1][1] - bounds[0][1]) / height),
+          translate = [(width - scale * (bounds[1][0] + bounds[0][0])) / 2, (height - scale * (bounds[1][1] + bounds[0][1])) / 2]
+
+    // Update the projection to use computed scale & translate.
     projection
-      .scale(1)
-      .translate([0, 0])
-      .rotate(projection.rotate())
-    path
-      .projection(projection)
-      .context(context)
+        .scale(scale)
+        .translate(translate);
+
+    // update corresponding backprojection
+    backprojection
+        .translate(projection.translate())
+        .scale(projection.scale())
   }
 
-  path_svg = d3.geoPath(projection)
+  function drawGlobeOnCanvas() {
 
-  // Compute the bounds of the land, then derive scale & translate.
-  const bounds = [[-1, -1], [1, 1]] //path.bounds(land),
-        scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / width, (bounds[1][1] - bounds[0][1]) / height),
-        translate = [(width - scale * (bounds[1][0] + bounds[0][0])) / 2, (height - scale * (bounds[1][1] + bounds[0][1])) / 2]
+    // update backprojection
+    const rotate = projection.rotate()
+    backprojection
+        .rotate([rotate[0] + 180, -rotate[1], -rotate[2]])
 
-  // Update the projection to use computed scale & translate.
-  projection
-      .scale(scale)
-      .translate(translate);
+    // drawing commands
+    context.clearRect(0, 0, width, height)
 
-  backprojection = d3.geoProjection((a,b) => d3.geoOrthographicRaw(-a,b))
-    .clipAngle(90)
-    .translate(projection.translate())
-    .scale(projection.scale())
+    context.beginPath();
+    pathCanvas({type:"Sphere"});
+    context.fillStyle = '#fcfcfc';
+    context.fill();
 
-  backpath = d3.geoPath()
-    .projection(backprojection)
-    .context(context)
+    context.beginPath();
+    backpathCanvas(world);
+    context.fillStyle = '#d0ddfa';
+    context.fill();
+    context.beginPath();
+    backpathCanvas(d3.geoGraticule()());
+    context.lineWidth = .1;
+    context.strokeStyle = '#97b3f6';
+    context.stroke();
+      
 
-  drawGlobe({ context, svg, g, width, height, path, path_svg, backpath, land, projection, backprojection, locations })
+    context.beginPath();
+    pathCanvas(d3.geoGraticule()());
+    context.lineWidth = .1;
+    context.strokeStyle = '#1046c6';
+    context.stroke();
 
-  if (timer) {
-    timer.stop()
-  } else {
-    if (timer_on) timer = d3.timer(elapsed => {
-      const rotate = projection.rotate();
-      rotate[0] += velocity * 20;
-      projection.rotate(rotate);
-      drawGlobe({ context, svg: svg_, g: g_, width: width_, height: height_, path, path_svg, backpath, land, projection, backprojection, locations })
-    });
-  }
-  
-  d3.geoInertiaDrag(svg, () => {
-    timer_on = false
-    timer.stop();
-    drawGlobe({ context, svg: svg_, g: g_, width: width_, height: height_,
-                 path, path_svg, backpath, land, projection, backprojection,
-                locations })
-  })
-  canvas.style('cursor', 'move')
-}
+    context.beginPath();
+    pathCanvas(world);
+    context.lineWidth = 1;
+    context.strokeStyle = '#1046c6';
+    context.stroke();
+    context.fillStyle = '#5c88ee';
+    const alpha = context.globalAlpha;
+    context.globalAlpha = 1;
+    context.fill();
+    context.globalAlpha = alpha;
 
-function drawGlobe({ context, svg, g, width, height, path, backpath, land, projection, backprojection, locations }) {
-  const rotate = projection.rotate()
-  backprojection.rotate([rotate[0] + 180, -rotate[1], -rotate[2]])
-  
-  const races = g.selectAll('.race-location')
-    .data(locations)
-    .join(
-      enter => enter.append('path')
-          .attr('class', 'race-location')
-          .attr('d', path_svg)
-          .attr('fill', d => d.istarget ? '#E24A33' :'white')
-          .attr('stroke', 'black')
-          .on('mouseover', d => {    
-            tooltip.transition()
-              .duration(200)    
-              .style("opacity", .9);    
-            tooltip.html(d.name)  
-              .style("left", (d3.event.pageX) + "px")   
-              .style("top", (d3.event.pageY - 28) + "px") 
-          })
-          .on('mouseout', d => {   
-            tooltip.transition()    
-              .duration(500)    
-              .style("opacity", 0)
-            }),
-      update => update
-          .attr('d', path_svg)
+    context.beginPath();
+    pathCanvas({type: "Sphere"});
+    context.lineWidth = .1;
+    context.strokeStyle = '#1046c6';
+    context.stroke();
+  } // drawGlobeOnCanvas
+
+  function drawLocationOnSVG() {
+    const className = 'race-location'
+    const races = svg.selectAll(`.${className}`)
+      .data(locations)
+      .join(
+        enter => enter.append('path')
+            .attr('class', className)
+            .attr('d', pathSvg)
+            .attr('fill', d => d.istarget ? '#E24A33' :'white')
+            .attr('stroke', 'black')
+            .on('mouseover', d => {
+              tooltip.transition()
+                .duration(200)    
+                .style("opacity", .9);    
+              tooltip.html(d.name)  
+                .style("left", (d3.event.pageX) + "px")   
+                .style("top", (d3.event.pageY - 28) + "px") 
+            })
+            .on('mouseout', d => {   
+              tooltip.transition()    
+                .duration(500)    
+                .style("opacity", 0)
+              }),
+        update => update.attr('d', pathSvg)
       )
+  } // drawLocationOnSVG
 
-  context.clearRect(0, 0, width, height)
-
-  context.beginPath();
-  path({type:"Sphere"});
-  context.fillStyle = '#fcfcfc';
-  context.fill();
-
-  context.beginPath();
-  backpath(land);
-  context.fillStyle = '#d0ddfa';
-  context.fill();
-  context.beginPath();
-  backpath(d3.geoGraticule()());
-  context.lineWidth = .1;
-  context.strokeStyle = '#97b3f6';
-  context.stroke();
-    
-
-  context.beginPath();
-  path(d3.geoGraticule()());
-  context.lineWidth = .1;
-  context.strokeStyle = '#1046c6';
-  context.stroke();
-
-  context.beginPath();
-  path(land);
-  context.lineWidth = 1;
-  context.strokeStyle = '#1046c6';
-  context.stroke();
-  context.fillStyle = '#5c88ee';
-  const alpha = context.globalAlpha;
-  context.globalAlpha = 1;
-  context.fill();
-  context.globalAlpha = alpha;
-
-  context.beginPath();
-  path({type: "Sphere"});
-  context.lineWidth = .1;
-  context.strokeStyle = '#1046c6';
-  context.stroke();
-
+  return { updateScene, drawGlobeOnCanvas, drawLocationOnSVG, updateLocations }
 }
-
-
-function renderScene({ locations }) {
-  // component(s) to render
-  globeComponent(d3.select(container), {
-    className: 'globe',
-    locations
-  });
-}
-
-triggerOnResize(() => renderScene({ locations }))
 
 
 /* --------------------------------------------- */
@@ -207,8 +212,7 @@ function triggerOnResize(fn){
   window.addEventListener('resize', fn);
 }
 
-function createCanvas({selection, className }){
-  className = className || 'main'
+function createCanvasSvgLayers({selection, className = 'main' }){
   const { x, y, width, height } = selection.node().getBoundingClientRect()
 
   let canvas = selection.selectAll(`.${className}-canvas`)
