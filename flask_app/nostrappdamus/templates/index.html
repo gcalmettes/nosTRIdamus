@@ -15,7 +15,7 @@
         <div class="input-group mb-2">
           <input id="race-input" type="text" class="form-control" placeholder="Which race did you liked?" aria-describedby="basic-addon2">
           <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button" onClick=redraw()>Submit</button>
+            <button class="btn btn-outline-secondary" type="button" onClick=showRecommendations()>Submit</button>
           </div>
         </div>
 
@@ -30,7 +30,9 @@
             <input type="radio" name="options" value='full' id="option3" autocomplete="off"> Full
           </label>
         </div>
-  
+        
+        <table id="result-table2" class='table'>
+
         <table id="result-table" class='table'>
           <tr>
             <td>Race</td>

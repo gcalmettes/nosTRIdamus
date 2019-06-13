@@ -10,6 +10,8 @@ let updateWorld,
     drawWorld, 
     drawLocations,
     setLocations,
+    showInfo,
+    hideInfo,
     timerWorld,
     runTimerWorld = true
 
@@ -17,13 +19,17 @@ let updateWorld,
 d3.json("https://unpkg.com/world-atlas/world/110m.json")
     .then(worldData => {
       const world = topojson.feature(worldData, worldData.objects.land)
-      const { updateScene, drawGlobeOnCanvas, drawLocationOnSVG, updateLocations } = renderWorld({ world })
+      const { updateScene, drawGlobeOnCanvas, 
+              drawLocationOnSVG, updateLocations, 
+              showTooltip, hideTooltip } = renderWorld({ world })
 
       // update global variables
       updateWorld = updateScene
       drawWorld = drawGlobeOnCanvas
       drawLocations = drawLocationOnSVG
       setLocations = updateLocations
+      showInfo = showTooltip
+      hideInfo = hideTooltip
 
       triggerOnResize(() => updateWorld())
 
@@ -179,27 +185,35 @@ function renderWorld({ world }) {
       .join(
         enter => enter.append('path')
             .attr('class', className)
+            .classed("isTarget", d => d.isTarget)
+            .classed("isSelection", d => d.isSelection)
             .attr('d', pathSvg)
-            .attr('fill', d => d.istarget ? '#E24A33' :'white')
             .attr('stroke', 'black')
-            .on('mouseover', d => {
-              tooltip.transition()
-                .duration(200)    
-                .style("opacity", .9);    
-              tooltip.html(d.name)  
-                .style("left", (d3.event.pageX) + "px")   
-                .style("top", (d3.event.pageY - 28) + "px") 
-            })
-            .on('mouseout', d => {   
-              tooltip.transition()    
-                .duration(500)    
-                .style("opacity", 0)
-              }),
+            .on('mouseover', d => showTooltip(d))
+            .on('mouseout', hideTooltip),
         update => update.attr('d', pathSvg)
+          .classed("isSelection", d => d.isSelection)
       )
   } // drawLocationOnSVG
 
-  return { updateScene, drawGlobeOnCanvas, drawLocationOnSVG, updateLocations }
+  function showTooltip(element) {
+    const [x_c, y_c] =  projection(element.coordinates)
+    const { x, y } = container.node().getBoundingClientRect()
+    tooltip.transition()
+      .duration(200)    
+      .style("opacity", .9);    
+    tooltip.html(element.name)  
+      .style("left", (x_c + x + 10) + "px")   
+      .style("top", (y_c + y - 28) + "px") 
+  }
+
+  function hideTooltip() {
+    tooltip.transition()    
+      .duration(500)    
+      .style("opacity", 0) 
+  }
+
+  return { updateScene, drawGlobeOnCanvas, drawLocationOnSVG, updateLocations, showTooltip, hideTooltip }
 }
 
 

@@ -41,8 +41,17 @@ div.tooltip {
 }
 
 .race-location { 
-    cursor: pointer;     
+    cursor: pointer;  
+    fill: white;   
     /*pointer-events: none;     */
+}
+
+.race-location.isTarget { 
+    fill: #E24A33;
+}
+
+.race-location.isSelection { 
+    fill: #FBC15E;
 }
 
 

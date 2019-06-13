@@ -27,7 +27,11 @@ def get_recommendation():
             recommendations = get_most_similar_races_to(race, filterBy='is_70.3', valueToMatch=True)
         else:
             recommendations = get_most_similar_races_to(race, filterBy='is_70.3', valueToMatch=False)
-        results = recommendations.to_json(orient='records')
+        results = (
+            recommendations.reset_index()
+            .rename(columns={"index": "race"})
+            .to_json(orient='records')
+        )
         response = jsonify({ 
           'message': 'Data received.',
           'data': json.loads(results)
