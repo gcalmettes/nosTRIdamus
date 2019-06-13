@@ -1,22 +1,21 @@
-import pickle
-import scipy.sparse
 import numpy as np
 import pandas as pd
 
+from .get_model import pick_model, get_items
 
-# load sparce matrix
-sparse_matrix = scipy.sparse.load_npz('./nostrappdamus/model/data/races_sparse_matrix.npz')
-# load races info
-races = pd.read_csv("./nostrappdamus/model/data/races.csv", index_col='race')
 
-# load the model from disk
-with open('./nostrappdamus/model/data/knn.sav', 'rb') as f:
-    knn_model = pickle.load(f)
+models = {
+  0: 'knn_sparse', # KNN on sparse matrix
+  1: 'knn_svd_25'  # KNN on SVD factored matrix
+}
 
-def test():
-    return 1
+choice = 1
 
-def get_filtered_races(filterBy, valueToMatch, df=races, returnIndices=False):
+# Load the appropriated model/data
+model,matrix = pick_model(models[choice])
+items = get_items()
+
+def get_filtered_races(filterBy, valueToMatch, df=items, returnIndices=False):
     if not filterBy:
         selection = df
     else:
@@ -26,11 +25,12 @@ def get_filtered_races(filterBy, valueToMatch, df=races, returnIndices=False):
     else:
         return selection.index.values
 
-def get_most_similar_races_to(raceId, model=knn_model, n=10, filterBy=False, 
-                              valueToMatch=False, races_df=races, addTarget=True):
+
+def get_most_similar_races_to(raceId, model=model, n=10, filterBy=False, 
+                              valueToMatch=False, races_df=items, addTarget=True):
     query_index = np.where(races_df.index == raceId)[0][0]
     total_n = races_df.shape[0]
-    distances, indices = model.kneighbors(sparse_matrix[query_index].reshape(1, -1), n_neighbors = total_n)
+    distances, indices = model.kneighbors(matrix[query_index].reshape(1, -1), n_neighbors = total_n)
     distances = distances.flatten()
     indices = indices.flatten()
     
@@ -61,4 +61,4 @@ def get_most_similar_races_to(raceId, model=knn_model, n=10, filterBy=False,
 
 
 def get_races_list():
-    return races
+    return items

@@ -59,8 +59,14 @@
       const pickedRace = document.getElementById('race-input').value
       const filterRace = document.querySelector('input[name="options"]:checked').value
 
-      const locations = await postData('/recommend', {race: raceslist[pickedRace], filterBy: filterRace})
-        .then(d => {
+      const locations = await sendRequest({ 
+        url: '/recommend', 
+        args: {
+          race: raceslist[pickedRace], 
+          filterBy: filterRace
+        }, 
+        method: 'POST' 
+      }).then(d => {
           const results = d.data
 
           // add results to table
@@ -93,8 +99,7 @@
     }
 
     // get the race list for text suggestion
-    fetch('/racelist')
-      .then(response => response.json())
+    sendRequest({ url: '/racelist', method: 'GET' })
       .then(json => {
         const races = json.data
 
@@ -104,6 +109,7 @@
 
         autocomplete(document.getElementById("race-input"), Object.values(races))
       })
+
     
   </script>
 {% endblock %}
