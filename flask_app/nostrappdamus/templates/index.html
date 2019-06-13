@@ -1,0 +1,111 @@
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    .important { color: #336699; }
+  </style>
+{% endblock %}
+{% block content %}
+  <h1>Hey there!</h1>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm">
+        
+        <div class="input-group mb-2">
+          <input id="race-input" type="text" class="form-control" placeholder="Which race did you liked?" aria-describedby="basic-addon2">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" onClick=redraw()>Submit</button>
+          </div>
+        </div>
+
+        <div id="races-filter" class="btn-group btn-group-toggle" data-toggle="buttons">
+          <label class="btn btn-secondary btn_colored active">
+            <input type="radio" name="options" value='all' id="option1" autocomplete="off" checked> No Filter
+          </label>
+          <label class="btn btn-secondary btn_colored">
+            <input type="radio" name="options" value='70.3' id="option2" autocomplete="off"> 70.3
+          </label>
+          <label class="btn btn-secondary btn_colored">
+            <input type="radio" name="options" value='full' id="option3" autocomplete="off"> Full
+          </label>
+        </div>
+  
+        <table id="result-table" class='table'>
+          <tr>
+            <td>Race</td>
+            <td>Location</td>
+            <td>Distance (cos.sim)</td>
+          </tr>
+        </table>
+
+      </div>
+      <div class="col-sm" id="globe"></div>
+    </div>
+  </div>
+  
+  <script src="{{ url_for('static', filename='js/vendor/d3.min.js') }}"></script> 
+  <script src="{{ url_for('static', filename='js/vendor/topojson.min.js') }}"></script>  
+  <script src="{{ url_for('static', filename='js/vendor/versor.min.js') }}"></script> 
+  <script src="{{ url_for('static', filename='js/vendor/d3-inertia.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/globe.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
+  <script>
+    
+    var raceslist
+
+    async function redraw(){
+
+      const pickedRace = document.getElementById('race-input').value
+      const filterRace = document.querySelector('input[name="options"]:checked').value
+
+      console.log(pickedRace, filterRace)
+
+      const locations = await postData('/recommend', {race: raceslist[pickedRace], filterBy: filterRace})
+        .then(d => {
+          const results = d.data
+
+          // add results to table
+          const resultTable = document.getElementById('result-table')
+          // remove old results
+          resultTable.querySelectorAll('tr')
+            .forEach((d, i) => i > 0 && d.remove())
+
+          results.forEach((d, i) => {
+            if (i > 0) {
+              // skip the first row at it is the target race
+              const row = createTableRow({
+                'race': d.racename,
+                'location': d.country_code,
+                'distance': d.similarity
+              })
+              resultTable.appendChild(row)
+            }
+          })
+          return results
+        })
+      
+      renderScene({ locations: locations.map((d, i) => (
+        { type: "Point", 
+          coordinates: [d.lon, d.lat], 
+          'name': d.racename, 
+          istarget: i == 0 }
+        )).reverse() 
+      })
+    }
+
+    // get the race list for text suggestion
+    fetch('/racelist')
+      .then(response => response.json())
+      .then(json => {
+        const races = json.data
+
+        // swap key/values for fast lookup later
+        raceslist = Object.keys(races)
+          .reduce((obj, key) => ({ ...obj, [races[key]]: key }), {})
+
+        autocomplete(document.getElementById("race-input"), Object.values(races))
+      })
+    
+  </script>
+{% endblock %}
