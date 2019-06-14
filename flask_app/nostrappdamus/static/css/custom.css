@@ -60,8 +60,14 @@ div.tooltip {
 }
 
 
+/* results table */
+
 .highlighted {
   background-color: #FBC15E;
+}
+
+table {
+  cursor: default;
 }
 
 
