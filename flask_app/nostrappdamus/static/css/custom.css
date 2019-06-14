@@ -60,6 +60,10 @@ div.tooltip {
 }
 
 
+.highlighted {
+  background-color: #FBC15E;
+}
+
 
 /*Autocomplete form*/
 

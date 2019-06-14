@@ -19,21 +19,6 @@ const sendRequest = config => {
   return request.then(response => response.json())
 }
 
-
-const createTableRow = data => {
-  const row = document.createElement('tr')
-
-  Object.values(data)
-    .forEach(value => {
-      // const value = data[key]
-      const td = document.createElement('td')
-      td.textContent = value
-      row.appendChild(td)
-    })
-
-  return row
-}
-
 const tabulate = ({ id, columns = [], data = [], mouseOver = (d) => {}, mouseOut = (d) => {} }) => {
   const table = d3.select(`#${id}`)
   const thead = table.selectAll('thead')
@@ -62,8 +47,8 @@ const tabulate = ({ id, columns = [], data = [], mouseOver = (d) => {}, mouseOut
   const rows = tbody.selectAll('tr')
       .data(data)
       .join(enter => enter.append('tr'))
-      .on('mouseover', d => mouseOver(d))
-      .on('mouseout', d => mouseOut(d))
+      .on('mouseover', (d, i, k) => mouseOver(d, i, k))
+      .on('mouseout', (d, i, k) => mouseOut(d, i, k))
   
   rows.selectAll('td')
       .data(row => columns.map(

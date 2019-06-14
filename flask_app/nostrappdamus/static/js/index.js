@@ -25,7 +25,8 @@ async function showRecommendations(){
           {id: 'similarity', name: 'Metric'}
         ],
         data: results.slice(1, results.length), // remove first row since it's the race itself,
-        mouseOver: row => {
+        mouseOver: (row, i, array) => {
+          d3.select(array[i]).classed('highlighted', true)
           const newLocations = locations.map((d, i) => ({ 
             type: "Point", 
             coordinates: [d.lon, d.lat], 
@@ -43,7 +44,8 @@ async function showRecommendations(){
           showInfo( {coordinates: [element.lon, element.lat], name: row.racename } )
 
         },
-        mouseOut: row => {
+        mouseOut: (row, i, array) => {
+          d3.select(array[i]).classed('highlighted', false)
           const newLocations = locations.map((d, i) => ({ 
             type: "Point", 
             coordinates: [d.lon, d.lat], 
