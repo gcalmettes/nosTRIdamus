@@ -3,17 +3,20 @@ import pandas as pd
 
 from .get_model import pick_model, get_items
 
-
+# Dictionary of possible models
 models = {
   0: 'knn_sparse', # KNN on sparse matrix
-  1: 'knn_svd_25'  # KNN on SVD factored matrix
+  1: 'knn_svd_25',  # KNN on SVD factored matrix
+  2: 'knn_svd_15'
 }
 
-choice = 1
-
-# Load the appropriated model/data
-model,matrix = pick_model(models[choice])
 items = get_items()
+
+def get_recommendations(raceId, model_number=0, filterBy=False, valueToMatch=False):
+    model,matrix = pick_model(models[int(model_number)])
+    return get_most_similar_races_to(raceId, model=model, matrix=matrix, n=10, filterBy=filterBy, 
+                              valueToMatch=valueToMatch, races_df=items, addTarget=True)
+    
 
 def get_filtered_races(filterBy, valueToMatch, df=items, returnIndices=False):
     if not filterBy:
@@ -26,7 +29,7 @@ def get_filtered_races(filterBy, valueToMatch, df=items, returnIndices=False):
         return selection.index.values
 
 
-def get_most_similar_races_to(raceId, model=model, n=10, filterBy=False, 
+def get_most_similar_races_to(raceId, model, matrix, n=10, filterBy=False, 
                               valueToMatch=False, races_df=items, addTarget=True):
     query_index = np.where(races_df.index == raceId)[0][0]
     total_n = races_df.shape[0]

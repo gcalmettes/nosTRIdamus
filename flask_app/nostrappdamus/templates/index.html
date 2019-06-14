@@ -1,16 +1,10 @@
 {% extends "layout.html" %}
 {% block title %}Index{% endblock %}
-{% block head %}
-  {{ super() }}
-  <style type="text/css">
-    .important { color: #336699; }
-  </style>
-{% endblock %}
 {% block content %}
   <h1>Hey there!</h1>
   <h4>Want to know what your next race will be? You're at the right place!</h4>
   <div class="container-fluid">
-    <div class="row">
+    <div class="row no-gutters">
       <div class="col-md">
         
         <div class="input-group mb-2">
@@ -20,27 +14,48 @@
           </div>
         </div>
 
-        <div id="races-filter" class="btn-group btn-group-toggle" data-toggle="buttons">
-          <label class="btn btn-secondary btn_colored active">
-            <input type="radio" name="options" value='all' id="option1" autocomplete="off" checked> No Filter
-          </label>
-          <label class="btn btn-secondary btn_colored">
-            <input type="radio" name="options" value='70.3' id="option2" autocomplete="off"> 70.3
-          </label>
-          <label class="btn btn-secondary btn_colored">
-            <input type="radio" name="options" value='full' id="option3" autocomplete="off"> Full
-          </label>
+        <div class="container-fluid remove-all-margin-padding">
+          <div class="row no-gutters">
+            <div class="col">
+              
+              <div id="races-filter" class="btn-group btn-group-toggle col-10 remove-all-margin-padding" data-toggle="buttons">
+                <label class="btn btn-secondary btn_colored active">
+                  <input type="radio" name="options" value='all' id="option1" autocomplete="off" checked> No Filter
+                </label>
+                <label class="btn btn-secondary btn_colored">
+                  <input type="radio" name="options" value='70.3' id="option2" autocomplete="off"> 70.3
+                </label>
+                <label class="btn btn-secondary btn_colored">
+                  <input type="radio" name="options" value='full' id="option3" autocomplete="off"> Full
+                </label>
+              </div>
+
+
+            </div>
+            <div class="col">
+              
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <label class="input-group-text" for="modelSelect">Model</label>
+                </div>
+                <select class="custom-select" id="modelSelect">
+                  <option selected value="0">Choose ...</option>
+                  <option value="0">KNN sparse</option>
+                  <option value="1">KNN SVD (25)</option>
+                  <option value="2">KNN SVD (15)</option>
+                  <option value="2">Content (TBI)</option>
+                  <option value="2">Hybrid (TBI)</option>
+                </select>
+              </div>
+
+
+            </div>
+          </div>
         </div>
         
-        <table id="result-table2" class='table'>
-
-        <table id="result-table" class='table'>
-          <tr>
-            <td>Race</td>
-            <td>Location</td>
-            <td>Distance (cos.sim)</td>
-          </tr>
-        </table>
+        
+        
+        <table id="result-table" class='table'></table>
 
       </div>
       <div class="col-md" id="globe"></div>

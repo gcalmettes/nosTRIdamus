@@ -1,3 +1,19 @@
+// Those will be global variables shared between the different
+// js files
+
+const shared = {
+  updateWorld: null, 
+  drawWorld: null, 
+  drawLocations: null,
+  setLocations: null,
+  showInfo: null,
+  hideInfo: null,
+}
+
+// file specific global variables
+let timerWorld,
+    runTimerWorld = true
+
 const container = d3.select('#globe')
 
 // div to be used to put info when mouseover
@@ -5,16 +21,6 @@ const tooltip = d3.select("body")
   .append("div") 
     .attr("class", "tooltip")       
     .style("opacity", 0)
-
-let updateWorld, 
-    drawWorld, 
-    drawLocations,
-    setLocations,
-    showInfo,
-    hideInfo,
-    timerWorld,
-    runTimerWorld = true
-
 
 d3.json("https://unpkg.com/world-atlas/world/110m.json")
     .then(worldData => {
@@ -24,14 +30,14 @@ d3.json("https://unpkg.com/world-atlas/world/110m.json")
               showTooltip, hideTooltip } = renderWorld({ world })
 
       // update global variables
-      updateWorld = updateScene
-      drawWorld = drawGlobeOnCanvas
-      drawLocations = drawLocationOnSVG
-      setLocations = updateLocations
-      showInfo = showTooltip
-      hideInfo = hideTooltip
+      shared['updateWorld'] = updateScene
+      shared['drawWorld'] = drawGlobeOnCanvas
+      shared['drawLocations'] = drawLocationOnSVG
+      shared['setLocations'] = updateLocations
+      shared['showInfo'] = showTooltip
+      shared['hideInfo'] = hideTooltip
 
-      triggerOnResize(() => updateWorld())
+      triggerOnResize(() => updateScene())
 
     })
     .catch(error => console.log(error))

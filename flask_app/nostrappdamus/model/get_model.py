@@ -13,6 +13,11 @@ models = {
         'model': './nostrappdamus/model/data/knn_svd-25.sav',
         'matrix': './nostrappdamus/model/data/races_condensed_matrix_svd-25.npy',
         'load_matrix': np.load
+    },
+    'knn_svd_15': {
+        'model': './nostrappdamus/model/data/knn_svd-15.sav',
+        'matrix': './nostrappdamus/model/data/races_condensed_matrix_svd-15.npy',
+        'load_matrix': np.load
     }
 }
 

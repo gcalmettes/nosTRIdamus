@@ -1,17 +1,20 @@
 
-// global variable
+// file specific variable
 let raceslist
 
 async function showRecommendations(){
 
   const pickedRace = document.getElementById('race-input').value
   const filterRace = document.querySelector('input[name="options"]:checked').value
+  const pickedModel = document.getElementById('modelSelect').value
+  console.log(pickedModel)
 
   const locations = await sendRequest({ 
     url: '/recommend', 
     args: {
       race: raceslist[pickedRace], 
-      filterBy: filterRace
+      filterBy: filterRace,
+      model: pickedModel
     }, 
     method: 'POST' 
   }).then(d => {
@@ -36,12 +39,12 @@ async function showRecommendations(){
             isSelection: d.race == row.race
           })).reverse() 
     
-          setLocations({ cities: newLocations })
-          drawLocations()
+          shared.setLocations({ cities: newLocations })
+          shared.drawLocations()
 
           // show tooltip
           const element = locations.filter(d => d.race == row.race)[0]
-          showInfo( {coordinates: [element.lon, element.lat], name: row.racename } )
+          shared.showInfo( {coordinates: [element.lon, element.lat], name: row.racename } )
 
         },
         mouseOut: (row, i, array) => {
@@ -55,12 +58,12 @@ async function showRecommendations(){
             isSelection: false
           })).reverse() 
     
-          setLocations({ cities: newLocations })
-          drawLocations()
+          shared.setLocations({ cities: newLocations })
+          shared.drawLocations()
 
           // hide tooltip
           const element = locations.filter(d => d.race == row.race)[0]
-          hideInfo( {coordinates: [element.lon, element.lat], name: row.racename } )
+          shared.hideInfo( {coordinates: [element.lon, element.lat], name: row.racename } )
         }
       })
 
@@ -76,9 +79,9 @@ async function showRecommendations(){
       isSelection: false
     })).reverse() 
     
-    setLocations({ cities: newLocations })
+    shared.setLocations({ cities: newLocations })
 
-    drawLocations()
+    shared.drawLocations()
 
 }
 

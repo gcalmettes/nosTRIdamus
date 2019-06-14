@@ -1,7 +1,7 @@
 from flask import render_template, jsonify, request
 import json
 
-from .model.predict import get_most_similar_races_to, get_races_list
+from .model.predict import get_most_similar_races_to, get_races_list, get_recommendations
 from nostrappdamus import app
 
 
@@ -17,16 +17,21 @@ def about():
 
 @app.route('/recommend', methods=['POST'])
 def get_recommendation():
+
     race = request.json.get('race')
     filterBy = request.json.get('filterBy')
+    model = request.json.get('model')
 
     if race:
         if filterBy == 'all':
-            recommendations = get_most_similar_races_to(race)
+            # recommendations = get_most_similar_races_to(race)
+            recommendations = get_recommendations(race, model_number=model)
         elif filterBy == '70.3':
-            recommendations = get_most_similar_races_to(race, filterBy='is_70.3', valueToMatch=True)
+            # recommendations = get_most_similar_races_to(race, filterBy='is_70.3', valueToMatch=True)
+            recommendations = get_recommendations(race, model_number=model, filterBy='is_70.3', valueToMatch=True)
         else:
-            recommendations = get_most_similar_races_to(race, filterBy='is_70.3', valueToMatch=False)
+            # recommendations = get_most_similar_races_to(race, filterBy='is_70.3', valueToMatch=False)
+            recommendations = get_recommendations(race, model_number=model, filterBy='is_70.3', valueToMatch=False)
         results = (
             recommendations.reset_index()
             .rename(columns={"index": "race"})

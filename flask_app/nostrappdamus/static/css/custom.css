@@ -70,6 +70,15 @@ table {
   cursor: default;
 }
 
+/*#result-table {
+  margin-top: 0px !important;
+}*/
+
+.remove-all-margin-padding{
+  margin:0 ! important;
+  padding:0 ! important;
+}
+
 
 /*Autocomplete form*/
 
