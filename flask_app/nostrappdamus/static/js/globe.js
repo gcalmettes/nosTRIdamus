@@ -204,13 +204,18 @@ function renderWorld({ world }) {
 
   function showTooltip(element) {
     const [x_c, y_c] =  projection(element.coordinates)
-    const { x, y } = container.node().getBoundingClientRect()
+    const { top, left } = container.node().getBoundingClientRect()
+    
+    const bodyRect = document.body.getBoundingClientRect()  
+    const y_offset   = top - bodyRect.top
+    const x_offset   = left - bodyRect.left
+
     tooltip.transition()
       .duration(200)    
       .style("opacity", .9);    
     tooltip.html(element.name)  
-      .style("left", (x_c + x + 10) + "px")   
-      .style("top", (y_c + y - 28) + "px") 
+      .style("left", (x_offset + x_c + 8) + "px")   
+      .style("top", (y_offset + y_c - 20) + "px") 
   }
 
   function hideTooltip() {

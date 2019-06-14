@@ -7,7 +7,6 @@ async function showRecommendations(){
   const pickedRace = document.getElementById('race-input').value
   const filterRace = document.querySelector('input[name="options"]:checked').value
   const pickedModel = document.getElementById('modelSelect').value
-  console.log(pickedModel)
 
   const locations = await sendRequest({ 
     url: '/recommend', 
