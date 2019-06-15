@@ -137,8 +137,6 @@ function renderWorld({ world }) {
           scale = 0.9 / Math.max((bounds[1][0] - bounds[0][0]) / width, (bounds[1][1] - bounds[0][1]) / height),
           translate = [(width - scale * (bounds[1][0] + bounds[0][0])) / 2, (height - scale * (bounds[1][1] + bounds[0][1])) / 2]
 
-    // console.log("scale:", scale, "translate:", translate)
-
     // Update the projection to use computed scale & translate.
     projection
         .scale(scale)
@@ -219,19 +217,22 @@ function renderWorld({ world }) {
   } // drawLocationOnSVG
 
   function showTooltip(element) {
-    const [x_c, y_c] =  projection(element.coordinates)
-    const { top, left } = container.node().getBoundingClientRect()
-    
-    const bodyRect = document.body.getBoundingClientRect()  
-    const y_offset   = top - bodyRect.top
-    const x_offset   = left - bodyRect.left
+    // only show tooltip if location shown on projection
+    if (pathSvg(element)) {
+      const [x_c, y_c] =  projection(element.coordinates)
+      const { top, left } = container.node().getBoundingClientRect()
+      
+      const bodyRect = document.body.getBoundingClientRect()  
+      const y_offset   = top - bodyRect.top
+      const x_offset   = left - bodyRect.left
 
-    tooltip.transition()
-      .duration(200)    
-      .style("opacity", .9);    
-    tooltip.html(`<div>${element.name}</div><br><img style="width: 200px;" src="${element.img}"><img>`
-    ).style("left", (x_offset + x_c + 8) + "px")   
-     .style("top", (y_offset + y_c - 20) + "px") 
+      tooltip.transition()
+        .duration(200)    
+        .style("opacity", .9);    
+      tooltip.html(`<div>${element.name}</div><br><img style="width: 200px;" src="${element.img}"><img>`
+      ).style("left", (x_offset + x_c + 8) + "px")   
+       .style("top", (y_offset + y_c - 20) + "px") 
+    }
   }
 
   function hideTooltip() {
