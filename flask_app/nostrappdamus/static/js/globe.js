@@ -112,16 +112,32 @@ function renderWorld({ world }) {
     const containerInfo = container.node().getBoundingClientRect()
     width = containerInfo.width
     height = containerInfo.height
+    updateDimensions()
     updateProjection()
     drawGlobeOnCanvas()
     drawLocationOnSVG()
   }
 
+  function updateDimensions(){
+    // canvas and context
+    canvas.style('width', width+'px')
+    canvas.style('height', height+'px')
+    canvas.attr('width', width * devicePixelRatio)
+    canvas.attr('height', height * devicePixelRatio)
+    context = canvas.node().getContext("2d");
+    context.scale(devicePixelRatio,devicePixelRatio)
+    // svg
+    svg.attr('width', width+'px')
+    svg.attr('height', height+'px')
+  }
+
   function updateProjection(){
     // Compute the bounds of the land, then derive scale & translate.
     const bounds = [[-1, -1], [1, 1]] //path.bounds(world),
-          scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / width, (bounds[1][1] - bounds[0][1]) / height),
+          scale = 0.9 / Math.max((bounds[1][0] - bounds[0][0]) / width, (bounds[1][1] - bounds[0][1]) / height),
           translate = [(width - scale * (bounds[1][0] + bounds[0][0])) / 2, (height - scale * (bounds[1][1] + bounds[0][1])) / 2]
+
+    // console.log("scale:", scale, "translate:", translate)
 
     // Update the projection to use computed scale & translate.
     projection
