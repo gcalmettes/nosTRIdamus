@@ -53,10 +53,8 @@ async function showRecommendations(){
     
           shared.setLocations({ cities: newLocations })
           shared.drawLocations()
-
           // show tooltip
           const element = locations.filter(d => d.race == row.race)[0]
-          
           shared.showInfo( makePoint(element, false, true))
 
         },
@@ -66,10 +64,7 @@ async function showRecommendations(){
     
           shared.setLocations({ cities: newLocations })
           shared.drawLocations()
-
-          // hide tooltip
-          const element = locations.filter(d => d.race == row.race)[0]
-          shared.hideInfo( {coordinates: [element.lon, element.lat], name: row.racename } )
+          shared.showInfo( null ) // hide tooltip
         }
       })
 
@@ -77,9 +72,7 @@ async function showRecommendations(){
     })
 
     const newLocations = locations.map((d, i) => makePoint(d, i==0, false)).reverse() 
-    
     shared.setLocations({ cities: newLocations })
-
     shared.drawLocations()
 
 }
@@ -94,7 +87,6 @@ tabulate({
   ],
   data: [] 
 })
-
 
 // get the race list for text suggestion
 sendRequest({ url: '/racelist', method: 'GET' })

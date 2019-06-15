@@ -2,17 +2,16 @@
 // js files
 
 const shared = {
-  updateWorld: null, 
-  drawWorld: null, 
   drawLocations: null,
   setLocations: null,
-  showInfo: null,
-  hideInfo: null,
+  showInfo: null
 }
 
 // file specific global variables
 let timerWorld,
-    runTimerWorld = true
+    runTimerWorld = true,
+    hoveredElement = null,
+    tooltipShown = false
 
 const container = d3.select('#globe')
 
@@ -25,17 +24,12 @@ const tooltip = d3.select("body")
 d3.json("https://unpkg.com/world-atlas/world/110m.json")
     .then(worldData => {
       const world = topojson.feature(worldData, worldData.objects.land)
-      const { updateScene, drawGlobeOnCanvas, 
-              drawLocationOnSVG, updateLocations, 
-              showTooltip, hideTooltip } = renderWorld({ world })
+      const { drawLocationOnSVG, updateLocations, updateElementStatus } = renderWorld({ world })
 
       // update global variables
-      shared['updateWorld'] = updateScene
-      shared['drawWorld'] = drawGlobeOnCanvas
       shared['drawLocations'] = drawLocationOnSVG
       shared['setLocations'] = updateLocations
-      shared['showInfo'] = showTooltip
-      shared['hideInfo'] = hideTooltip
+      shared['showInfo'] = updateElementStatus
 
       triggerOnResize(() => updateScene())
 
@@ -198,6 +192,7 @@ function renderWorld({ world }) {
     context.stroke();
   } // drawGlobeOnCanvas
 
+  // function drawLocationOnSVG() {
   function drawLocationOnSVG() {
     const className = 'race-location'
     const races = svg.selectAll(`.${className}`)
@@ -209,16 +204,26 @@ function renderWorld({ world }) {
             .classed("isSelection", d => d.isSelection)
             .attr('d', pathSvg)
             .attr('stroke', 'black')
-            .on('mouseover', d => showTooltip(d))
-            .on('mouseout', hideTooltip),
+            .on('mouseover', d => updateElementStatus(d))
+            .on('mouseout', d => updateElementStatus(null)),
         update => update.attr('d', pathSvg)
           .classed("isSelection", d => d.isSelection)
       )
+
+    // update tooltip status
+    updateTooltipStatus()
+
   } // drawLocationOnSVG
 
-  function showTooltip(element) {
+  function updateElementStatus(element){
+    hoveredElement = element
+    updateTooltipStatus()
+  }
+
+  function updateTooltipStatus() {
+    const element = hoveredElement
     // only show tooltip if location shown on projection
-    if (pathSvg(element)) {
+    if (hoveredElement && pathSvg(element)) {
       const [x_c, y_c] =  projection(element.coordinates)
       const { top, left } = container.node().getBoundingClientRect()
       
@@ -226,22 +231,31 @@ function renderWorld({ world }) {
       const y_offset   = top - bodyRect.top
       const x_offset   = left - bodyRect.left
 
-      tooltip.transition()
-        .duration(200)    
-        .style("opacity", .9);    
-      tooltip.html(`<div>${element.name}</div><br><img style="width: 200px;" src="${element.img}"><img>`
-      ).style("left", (x_offset + x_c + 8) + "px")   
-       .style("top", (y_offset + y_c - 20) + "px") 
+      // show tooltip if not already shown
+      if (!tooltipShown) {
+        tooltipShown = true
+        // transition in if tooltip not present
+        tooltip.transition()
+          .duration(100)    
+          .style("opacity", .9)
+        tooltip
+          .html(`${element.name}<br>${element.city}`)
+          // .html(`<div>${element.name}</div><br><img style="width: 200px;" src="${element.img}"><img>`)
+      }
+      
+      // update tooltip position 
+      tooltip.style("left", (x_offset + x_c + 8) + "px")   
+             .style("top", (y_offset + y_c - 20) + "px") 
+    } else {
+      // remove tooltip
+      tooltipShown = false
+      tooltip.transition()    
+        .duration(50)    
+        .style("opacity", 0)
     }
   }
 
-  function hideTooltip() {
-    tooltip.transition()    
-      .duration(500)    
-      .style("opacity", 0) 
-  }
-
-  return { updateScene, drawGlobeOnCanvas, drawLocationOnSVG, updateLocations, showTooltip, hideTooltip }
+  return { drawLocationOnSVG, updateLocations, updateElementStatus }
 }
 
 
