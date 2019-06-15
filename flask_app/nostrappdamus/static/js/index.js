@@ -2,6 +2,19 @@
 // file specific variable
 let raceslist
 
+const makePoint = (d, isTarget, isSelect) => ({
+  type: "Point", 
+  coordinates: [d.lon, d.lat], 
+  id: d.race,
+  name: d.racename,
+  img: d.image_url,
+  url: d.imlink,
+  city: d.city,
+  date: d.date,
+  isTarget: isTarget,
+  isSelection: isSelect
+})
+
 async function showRecommendations(){
 
   const pickedRace = document.getElementById('race-input').value
@@ -43,19 +56,13 @@ async function showRecommendations(){
 
           // show tooltip
           const element = locations.filter(d => d.race == row.race)[0]
-          shared.showInfo( {coordinates: [element.lon, element.lat], name: row.racename } )
+          
+          shared.showInfo( makePoint(element, false, true))
 
         },
         mouseOut: (row, i, array) => {
           d3.select(array[i]).classed('highlighted', false)
-          const newLocations = locations.map((d, i) => ({ 
-            type: "Point", 
-            coordinates: [d.lon, d.lat], 
-            'id': d.race,
-            'name': d.racename,
-            isTarget: i == 0,
-            isSelection: false
-          })).reverse() 
+          const newLocations = locations.map((d, i) => makePoint(d, i==0, false)).reverse() 
     
           shared.setLocations({ cities: newLocations })
           shared.drawLocations()
@@ -69,14 +76,7 @@ async function showRecommendations(){
       return results
     })
 
-    const newLocations = locations.map((d, i) => ({ 
-      type: "Point", 
-      coordinates: [d.lon, d.lat], 
-      'id': d.race,
-      'name': d.racename,
-      isTarget: i == 0,
-      isSelection: false
-    })).reverse() 
+    const newLocations = locations.map((d, i) => makePoint(d, i==0, false)).reverse() 
     
     shared.setLocations({ cities: newLocations })
 

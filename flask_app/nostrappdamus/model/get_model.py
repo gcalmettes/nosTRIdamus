@@ -46,4 +46,8 @@ def pick_model(model_name):
 def get_items():
     # load races info
     items = pd.read_csv(look_up_items['file'], index_col=look_up_items['index_col'])
-    return items
+    columns_selection = [
+        'racename', 'date', 'imlink', 'city', 'image_url', 'logo_url',
+        'region', 'images', 'country_code', 'lat', 'lon', 'is_70.3'
+    ]
+    return items.loc[:, columns_selection]

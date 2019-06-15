@@ -213,9 +213,9 @@ function renderWorld({ world }) {
     tooltip.transition()
       .duration(200)    
       .style("opacity", .9);    
-    tooltip.html(element.name)  
-      .style("left", (x_offset + x_c + 8) + "px")   
-      .style("top", (y_offset + y_c - 20) + "px") 
+    tooltip.html(`<div>${element.name}</div><br><img style="width: 200px;" src="${element.img}"><img>`
+    ).style("left", (x_offset + x_c + 8) + "px")   
+     .style("top", (y_offset + y_c - 20) + "px") 
   }
 
   function hideTooltip() {
