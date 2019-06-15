@@ -2,6 +2,7 @@
 import re
 import json
 import scrapy
+import datetime
 
 from scrapy.spidermiddlewares.httperror import HttpError
 from twisted.internet.error import DNSLookupError
@@ -86,6 +87,26 @@ class RacesDescriptionSpider(scrapy.Spider):
         race_region = response.meta['race_region']
         race_location = response.meta['race_location']
 
+        # event details
+        event_details = response.xpath("//div[@id = 'eventDetails']")
+        date = event_details.xpath(".//p[@class = 'eventDate']/text()").getall()
+        if len(date)>0:
+            date = " ".join(date)
+            try:
+                date = datetime.datetime.strptime(date, '%b %d %Y').strftime("%Y-%m-%d")
+            except:
+                date = date
+        else:
+            date = False
+        location = event_details.xpath(".//h3[not(@class)]/text()").getall()
+        if len(location) >0:
+            if len(location)==1:
+                location = location[0]
+            elif len(location)>1:
+                location = location[1]
+        else:
+            location = False
+
         # specific race description? 
         aboutThisRace = response.xpath("//*/text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'))='about this race']/parent::*/@href").get()
         if (aboutThisRace and response.meta.get('first_time', True)):
@@ -95,7 +116,8 @@ class RacesDescriptionSpider(scrapy.Spider):
                 'race_id': race_id,
                 'race_name': race_name,
                 'race_region': race_region,
-                'race_location': race_location,
+                'race_location': location if location else race_location,
+                'race_date': date,
                 'first_time': False
             })
             yield about_request
@@ -108,7 +130,8 @@ class RacesDescriptionSpider(scrapy.Spider):
                 'id': race_id,
                 'name': race_name,
                 'region': race_region,
-                'location': race_location,
+                'location': location if location else race_location,
+                'date': date,
                 'description': description
             }
    
