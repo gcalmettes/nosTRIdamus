@@ -9,6 +9,7 @@ const makePoint = (d, isTarget, isSelect) => ({
   name: d.racename,
   img: d.image_url,
   url: d.imlink,
+  countryCode: d.country_code,
   city: d.city,
   date: d.date,
   isTarget: isTarget,
@@ -71,9 +72,19 @@ async function showRecommendations(){
       return results
     })
 
-    const newLocations = locations.map((d, i) => makePoint(d, i==0, false)).reverse() 
+    const newLocations = locations.map((d, i) => makePoint(d, i==0, false)).reverse()
+    shared.resetInfo() 
     shared.setLocations({ cities: newLocations })
     shared.drawLocations()
+
+    // pre-load the images
+    const imgs = {}
+    for (const loc of newLocations ){
+      imgs[loc.race] = new Image()
+      imgs[loc.race].src = loc.img
+    
+  }
+  // console.log(imgs)
 
 }
 

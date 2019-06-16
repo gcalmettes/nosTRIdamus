@@ -4,16 +4,26 @@
 const shared = {
   drawLocations: null,
   setLocations: null,
-  showInfo: null
+  showInfo: null,
+  resetInfo: null
 }
 
 // file specific global variables
 let timerWorld,
-    runTimerWorld = true,
+    runTimerWorld = false,
     hoveredElement = null,
+    displayedElement = null,
     tooltipShown = false
 
+// Selections used
 const container = d3.select('#globe')
+const raceInfo = {
+  id: d3.select('#info-raceid'),
+  name: d3.select('#info-racename'),
+  description: d3.select('#info-racedescription'),
+  img: d3.select('#info-raceimage'),
+  url: d3.select('#info-raceurl')
+}
 
 // div to be used to put info when mouseover
 const tooltip = d3.select("body")
@@ -24,12 +34,13 @@ const tooltip = d3.select("body")
 d3.json("https://unpkg.com/world-atlas/world/110m.json")
     .then(worldData => {
       const world = topojson.feature(worldData, worldData.objects.land)
-      const { drawLocationOnSVG, updateLocations, updateElementStatus } = renderWorld({ world })
+      const { updateScene, drawLocationOnSVG, updateLocations, updateElementStatus, resetInfo } = renderWorld({ world })
 
       // update global variables
       shared['drawLocations'] = drawLocationOnSVG
       shared['setLocations'] = updateLocations
       shared['showInfo'] = updateElementStatus
+      shared['resetInfo'] = resetInfo
 
       triggerOnResize(() => updateScene())
 
@@ -90,7 +101,7 @@ function renderWorld({ world }) {
   // Set up Fil's d3-geoInertia
    const inertia = d3.geoInertiaDrag(svg, () => {
     runTimerWorld = false
-    timerWorld.stop();
+    if (timerWorld) timerWorld.stop();
     drawGlobeOnCanvas()
     drawLocationOnSVG()
   }, projection)
@@ -100,6 +111,10 @@ function renderWorld({ world }) {
 
   function updateLocations({ cities }) {
     locations = cities
+  }
+
+  function resetInfo(){
+    displayedElement = null
   }
 
   function updateScene(){
@@ -212,18 +227,23 @@ function renderWorld({ world }) {
 
     // update tooltip status
     updateTooltipStatus()
+    updateRaceInfoStatus()
 
   } // drawLocationOnSVG
 
   function updateElementStatus(element){
     hoveredElement = element
     updateTooltipStatus()
+    updateRaceInfoStatus()
   }
 
   function updateTooltipStatus() {
     const element = hoveredElement
+    // update element to display info for in info box
+    if (element) displayedElement = hoveredElement
     // only show tooltip if location shown on projection
-    if (hoveredElement && pathSvg(element)) {
+    if (element && pathSvg(element)) {
+
       const [x_c, y_c] =  projection(element.coordinates)
       const { top, left } = container.node().getBoundingClientRect()
       
@@ -240,7 +260,6 @@ function renderWorld({ world }) {
           .style("opacity", .9)
         tooltip
           .html(`${element.name}<br>${element.city}`)
-          // .html(`<div>${element.name}</div><br><img style="width: 200px;" src="${element.img}"><img>`)
       }
       
       // update tooltip position 
@@ -255,7 +274,54 @@ function renderWorld({ world }) {
     }
   }
 
-  return { drawLocationOnSVG, updateLocations, updateElementStatus }
+  function updateRaceInfoStatus() {
+    const element = displayedElement
+    if (element) {
+      // show info
+      raceInfo.id.html(element.id)
+      raceInfo.name.html(`Name: ${element.name}`)
+      const locationElements = element.city.split(',')
+      let description
+      if (locationElements.length>1) {
+        city = locationElements[0].trim()
+        country = locationElements[1].trim()
+        if (element.countryCode == 'USA') country = `USA (${country})`
+        description = `Country: ${country}<br>City: ${city}<br>Date: ${element.date || 'TBD'}`
+      } else {
+        country = locationElements[0].trim()
+        description = `Country: ${country}<br>City: ---<br>Date: ${element.date || 'TBD'}`
+      }
+      raceInfo.description.html(description)
+      raceInfo.img
+        .attr('src', element.img)
+        .attr('data-src', null)
+        .attr('data-holder-rendered', null)
+        .attr('style', null)
+      raceInfo.url.attr('href', element.url)
+      raceInfo.url.attr('target', '_blank')
+
+    } else {
+      // hide info
+      raceInfo.id.html('')
+      raceInfo.name.html('Name:')
+      raceInfo.description.html('Country:<br>City:<br>Date:')
+      raceInfo.url.attr('href', null)
+      raceInfo.url.attr('target', null)
+
+      // reset image placeholder
+      const imageDims = raceInfo.img.node().getBoundingClientRect()
+      const padding = 2*15
+      raceInfo.img
+        .attr('src', null)
+        .attr('data-src', `holder.js/${imageDims.width}x${(imageDims.width-padding)*(318/600)}?bg=#DCDCDC&text=%20`)
+        .attr('style', null)
+      Holder.run({
+        images: raceInfo.img.node()
+      });
+    }
+  }
+
+  return { updateScene, drawLocationOnSVG, updateLocations, updateElementStatus, resetInfo }
 }
 
 
