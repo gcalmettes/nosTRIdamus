@@ -22,7 +22,8 @@ const raceInfo = {
   name: d3.select('#info-racename'),
   description: d3.select('#info-racedescription'),
   img: d3.select('#info-raceimage'),
-  url: d3.select('#info-raceurl')
+  url: d3.select('#info-raceurl'),
+  moreInfoButton: d3.select('#race-moreinfobutton')
 }
 
 // div to be used to put info when mouseover
@@ -305,16 +306,21 @@ function renderWorld({ world }) {
         .attr('data-src', null)
         .attr('data-holder-rendered', null)
         .attr('style', null)
-      raceInfo.url.attr('href', element.url)
-      raceInfo.url.attr('target', '_blank')
+      raceInfo.url
+        .classed('disabled', false)
+        .attr('href', element.url)
+        .attr('target', '_blank')
+
+      // activate more info button
+      raceInfo.moreInfoButton.attr('disabled', null)
 
     } else {
       // hide info
       raceInfo.id.html('')
       raceInfo.name.html('Name:')
       raceInfo.description.html('Country:<br>City:<br>Date:')
-      raceInfo.url.attr('href', null)
-      raceInfo.url.attr('target', null)
+      raceInfo.url
+        .classed('disabled', true)
 
       // reset image placeholder
       const imageDims = raceInfo.img.node().getBoundingClientRect()
@@ -325,7 +331,9 @@ function renderWorld({ world }) {
         .attr('style', null)
       Holder.run({
         images: raceInfo.img.node()
-      });
+      })
+      // desactivate more info button
+      raceInfo.moreInfoButton.attr('disabled', false)
     }
   }
 

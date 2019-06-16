@@ -82,10 +82,7 @@ async function showRecommendations(){
     for (const loc of newLocations ){
       imgs[loc.race] = new Image()
       imgs[loc.race].src = loc.img
-    
-  }
-  // console.log(imgs)
-
+    }
 }
 
 // initialize table
@@ -96,7 +93,7 @@ tabulate({
     {id: 'country_code', name: 'Country'},
     {id: 'similarity', name: 'Metric'}
   ],
-  data: [] 
+  data: []
 })
 
 // get the race list for text suggestion
