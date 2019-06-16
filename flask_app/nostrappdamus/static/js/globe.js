@@ -219,8 +219,16 @@ function renderWorld({ world }) {
             .classed("isSelection", d => d.isSelection)
             .attr('d', pathSvg)
             .attr('stroke', 'black')
-            .on('mouseover', d => updateElementStatus(d))
-            .on('mouseout', d => updateElementStatus(null)),
+            .on('mouseover', function(d){
+              d3.select(this)
+                .classed("isSelection", true)
+              updateElementStatus(d)
+            })
+            .on('mouseout', function(d){
+              d3.select(this)
+                .classed("isSelection", false)
+              updateElementStatus(null)
+            }),
         update => update.attr('d', pathSvg)
           .classed("isSelection", d => d.isSelection)
       )
