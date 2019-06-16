@@ -33,7 +33,7 @@ def get_races_urls(fileSources, selection=None):
                 if not race_url:
                     race_url = race.get('url', False)
                 if race_url and race_url not in urls:
-                    race_id = race.get('id', "TBD")
+                    race_id = race.get('id', f"TBD_{race.get('name', 'no_name')}")
                     race_region = race.get('region', "TBD")
                     races.append({'id': race_id, 'name': race['name'], 'location': race['location'], 'url': race_url, 'region': race_region})
                     urls.add(race_url)
@@ -86,6 +86,7 @@ class RacesDescriptionSpider(scrapy.Spider):
         race_name = response.meta['race_name']
         race_region = response.meta['race_region']
         race_location = response.meta['race_location']
+        race_date = response.meta.get('race_date')
 
         # event details
         event_details = response.xpath("//div[@id = 'eventDetails']")
@@ -98,6 +99,7 @@ class RacesDescriptionSpider(scrapy.Spider):
                 date = date
         else:
             date = False
+            print("no date for:", response.url, race_date)
         location = event_details.xpath(".//h3[not(@class)]/text()").getall()
         if len(location) >0:
             if len(location)==1:
@@ -117,7 +119,7 @@ class RacesDescriptionSpider(scrapy.Spider):
                 'race_name': race_name,
                 'race_region': race_region,
                 'race_location': location if location else race_location,
-                'race_date': date,
+                'race_date': date if date else race_date,
                 'first_time': False
             })
             yield about_request
@@ -131,7 +133,7 @@ class RacesDescriptionSpider(scrapy.Spider):
                 'name': race_name,
                 'region': race_region,
                 'location': location if location else race_location,
-                'date': date,
+                'date': date if date else race_date,
                 'description': description
             }
    
