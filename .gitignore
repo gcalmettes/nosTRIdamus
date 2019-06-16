@@ -110,3 +110,5 @@ gcGroupbyExtension/
 node_modules/
 biblio/
 ressources/
+notebooks/figs
+
