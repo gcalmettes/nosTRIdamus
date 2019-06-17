@@ -1,4 +1,7 @@
 {% extends "layout.html" %}
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-slider.min.css') }}">
+{% endblock %}
 {% block title %}Index{% endblock %}
 {% block content %}
   <h1>Hey there!</h1>
@@ -8,12 +11,39 @@
       <div class="col-md">
         
       <!-- <div class="card"> -->
+        <div class="row">
+          <div class="col-6">
 
-        <div class="input-group mb-2">
-          <input id="race-input" type="text" class="form-control" placeholder="Which race did you liked?" aria-describedby="basic-addon2">
-          <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button" onClick=showRecommendations()>Submit</button>
+            <div>
+              Pick a reference race or give us some details about your expectations with the sliders on the right!
+            </div>
+
+            <div class="input-group mb-2">
+              <input id="race-input" type="text" class="form-control" placeholder="Which race did you liked?" aria-describedby="basic-addon2">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onClick=showRecommendations()>Submit</button>
+              </div>
+            </div>
           </div>
+
+          <div class="col-6">
+            <!-- <input id="ex6" type="text" data-slider-min="-5" data-slider-max="20" data-slider-step="1" data-slider-value="3"/>
+            <span id="ex6CurrentSliderValLabel">Current Slider Value: <span id="ex6SliderVal">3</span></span> -->
+            <div class="slider-container">
+            <!-- <span id="slider-racetype-label" class="hidden">Choose</span> -->
+            <input id="slider-racetype" type="text"
+                  data-provide="slider"
+                  data-slider-ticks="[1, 2, 3, 4]"
+                  data-slider-ticks-labels='["Family", "Vacation", "Performance", "Pro"]'
+                  data-slider-min="1"
+                  data-slider-max="3"
+                  data-slider-step="1"
+                  data-slider-value="3"
+                  data-slider-tooltip="hide" />
+            </div>
+
+          </div>
+
         </div>
 
         <div class="container-fluid remove-all-margin-padding">
@@ -128,6 +158,7 @@
   <script src="{{ url_for('static', filename='js/vendor/versor.min.js') }}"></script> 
   <script src="{{ url_for('static', filename='js/vendor/d3-inertia.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/vendor/holder.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/vendor/bootstrap-slider.min.js') }}"></script>
 
   <!-- page specifics -->
   <script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>

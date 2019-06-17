@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% block head %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>{% block title %}{% endblock %} - My Webpage</title>
     <meta name="description" content="Nostridamus">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-    <title>{% block title %}{% endblock %} - My Webpage</title>
-    {% endblock %}
     <script src="{{ url_for('static', filename='js/vendor/jquery-3.3.1.slim.min.js') }}"></script> 
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script> 
+    {% block head %}
+    {% endblock %}
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">

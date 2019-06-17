@@ -80,6 +80,16 @@ table {
 }
 
 
+/* Slider */
+
+.slider-container > .slider.slider-horizontal {
+    width:100%;
+  }
+
+.slider-selection .tick-slider-selection {
+    color: red !important;
+  }
+
 /*Autocomplete form*/
 
 * { box-sizing: border-box; }
