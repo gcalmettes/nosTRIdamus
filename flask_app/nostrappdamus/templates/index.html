@@ -71,11 +71,10 @@
                 </div>
                 <select class="custom-select" id="modelSelect">
                   <option selected value="0">Choose ...</option>
-                  <option value="0">KNN sparse</option>
-                  <option value="1">KNN SVD (25)</option>
-                  <option value="2">KNN SVD (15)</option>
-                  <option value="2">Content (TBI)</option>
-                  <option value="2">Hybrid (TBI)</option>
+                  <option value="0">ALS</option>
+                  <option value="1">KNN</option>
+                  <option value="2">KNN SVD (10)</option>
+                  <!-- <option value="3">Content (TBI)</option> -->
                 </select>
               </div>
 
@@ -104,7 +103,7 @@
 
           <div class="card">
             <div class="card-header">
-              <span>Info:</span> <span id="info-raceid"></span>
+              <span id="info-raceid">Info:</span>
             </div>
             <div class="card-body">
               <h5 class="card-title" id="info-racename"></h5>
@@ -116,7 +115,7 @@
                   <a href="#" class="btn btn-primary" id="info-raceurl" style="position: absolute; bottom: 0; right: 0;">Register</a>
                   <!-- Button trigger modal -->
                   <button type="button" id="race-moreinfobutton" class="btn btn-primary" data-toggle="modal" data-target="#moreInfo"
-                   style="position: absolute; bottom: 0; left: 0;" disabled>
+                   style="position: absolute; bottom: 0; left: 0;" onclick=showMaps() disabled>
                     More info
                   </button>
                 </div>
@@ -141,7 +140,10 @@
             </button>
           </div>
           <div class="modal-body">
-            ...
+            <div>Some text about the bike</div>
+            <div id="bike-elevation-chart"></div>
+            <div>Some more text about the run</div>
+            <div id="run-elevation-chart"></div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -12,18 +12,32 @@
   color: #333333;
 }
 
+
+/***************************************/
+/**********  Misc Elements  ***********/
+/**************************************/
+
+.btn_colored.active {
+    background-color: #E24A33 !important;
+}
+
+
+/***************************************/
+/**************  GLobe   ***************/
+/**************************************/
+
 #globe {
   height: 350px;
   /*width: 100%;*/
 }
 
-svg {
+svg.globe-svg {
   cursor: move;  /* fallback if grab cursor is unsupported */
   cursor: grab;
   cursor: -moz-grab;
   cursor: -webkit-grab;
 }
-svg.dragging {
+svg.globe-svg.dragging {
   cursor: grabbing;
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
@@ -55,12 +69,18 @@ div.tooltip {
 }
 
 
-.btn_colored.active {
-    background-color: #E24A33 !important;
+/***************************************/
+/**********  Race profile   ***********/
+/**************************************/
+
+.activity-chart>path {
+  fill: #FBCCB8;
 }
 
 
-/* results table */
+/***************************************/
+/**********  Results table  ***********/
+/**************************************/
 
 .highlighted {
   background-color: #FBC15E;
@@ -70,17 +90,15 @@ table {
   cursor: default;
 }
 
-/*#result-table {
-  margin-top: 0px !important;
-}*/
-
 .remove-all-margin-padding{
   margin:0 ! important;
   padding:0 ! important;
 }
 
 
-/* Slider */
+/***************************************/
+/************    Sliders   *************/
+/**************************************/
 
 .slider-container > .slider.slider-horizontal {
     width:100%;
@@ -90,7 +108,9 @@ table {
     color: red !important;
   }
 
-/*Autocomplete form*/
+/***************************************/
+/*********   Autocomplete   ************/
+/**************************************/
 
 * { box-sizing: border-box; }
 body {

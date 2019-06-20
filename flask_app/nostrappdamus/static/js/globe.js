@@ -287,7 +287,7 @@ function renderWorld({ world }) {
     const element = displayedElement
     if (element) {
       // show info
-      raceInfo.id.html(element.id)
+      raceInfo.id.attr("value", element.id)//.html(element.id)
       raceInfo.name.html(`Name: ${element.name}`)
       const locationElements = element.city.split(',')
       let description
@@ -317,7 +317,7 @@ function renderWorld({ world }) {
 
     } else {
       // hide info
-      raceInfo.id.html('')
+      raceInfo.id.attr("value", null)//html('')
       raceInfo.name.html('Name:')
       raceInfo.description.html('Country:<br>City:<br>Date:')
       raceInfo.url

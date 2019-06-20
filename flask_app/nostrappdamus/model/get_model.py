@@ -9,24 +9,26 @@ from .recommenders import ALSRecommender, KNNRecommender
 models_list = {
     # item-item collaborative filtering using Alternative Least Squares
     'ALS': {
-        'name': 'ALS',
+        'name': 'ALS item-item CF',
         'model': './nostrappdamus/model/data/als_model.sav',
         'matrix': './nostrappdamus/model/data/als_sparse_matrix.npz',
         'load_matrix': scipy.sparse.load_npz,
         'hash_map': './nostrappdamus/model/data/als_hash.json',
         'class': ALSRecommender
     },
-    'knn_sparse': {
-        'name': 'KNN sparse',
-        'model': './nostrappdamus/model/data/knn.sav',
-        'matrix': './nostrappdamus/model/data/races_sparse_matrix.npz',
-        'load_matrix': scipy.sparse.load_npz,
+    'KNN_Content': {
+        'name': 'KNN content-based',
+        'model': './nostrappdamus/model/data/knn_content.sav',
+        'matrix': './nostrappdamus/model/data/knn_content_matrix.npy',
+        'hash_map': './nostrappdamus/model/data/knn_content_hash.json',
+        'load_matrix': np.load,
         'class': KNNRecommender
     },
-    'knn_svd_25': {
-        'name': 'KNN SVD 25 components',
-        'model': './nostrappdamus/model/data/knn_svd-25.sav',
-        'matrix': './nostrappdamus/model/data/races_condensed_matrix_svd-25.npy',
+    'KNN_SVD_Content': {
+        'name': 'KNN SVD 10 content-based',
+        'model': './nostrappdamus/model/data/knn_svd_content.sav',
+        'matrix': './nostrappdamus/model/data/knn_svd_content_matrix.npy',
+        'hash_map': './nostrappdamus/model/data/knn_svd_content_hash.json',
         'load_matrix': np.load,
         'class': KNNRecommender
     }
@@ -39,6 +41,7 @@ look_up_items = {
 
 # the first time it will be called, the variable will be assigned 
 items = None
+items_map = None
 
 def get_model(model_name):
     config = models_list.get(model_name)
@@ -67,16 +70,27 @@ def get_model(model_name):
 
 
 def get_items():
-    global items
-    if items:
+    global items, items_map
+    if type(items) != type(None):
         return items
     else:
         print('Loading items data for the first time!')
         # load races info
-        items = pd.read_csv(look_up_items['file'], index_col=look_up_items['index_col'])
+        items_full = pd.read_csv(look_up_items['file'], index_col=look_up_items['index_col'])
         columns_selection = [
             'racename', 'date', 'imlink', 'city', 'image_url', 'logo_url',
             'region', 'images', 'country_code', 'lat', 'lon', 'is_70.3'
         ]
-        items = items.loc[:, columns_selection]
+        items = items_full.loc[:, columns_selection]
+        # map info
+        items_map = items_full.loc[:, ['run_elevation_map', 'bike_elevation_map']]
+        items_map['run_elevation_map'] =  items_map['run_elevation_map'].map(lambda x: json.loads(x))
+        items_map['bike_elevation_map'] =  items_map['bike_elevation_map'].map(lambda x: json.loads(x))
         return items
+
+
+def get_items_map(raceId='boulder'):
+    global items_map
+    map_dict = items_map.loc[raceId].to_dict()
+    map_dict['raceId'] = raceId
+    return map_dict

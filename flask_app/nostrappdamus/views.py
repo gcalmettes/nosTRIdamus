@@ -1,7 +1,8 @@
 from flask import render_template, jsonify, request
 import json
 
-from .model.predict import get_races_list, get_recommendations
+from .model.predict import get_recommendations
+from .model.get_model import get_items, get_items_map
 from nostrappdamus import app
 
 
@@ -51,10 +52,23 @@ def get_recommendation():
 @app.route('/racelist')
 def get_races():
     # races_list = list(get_races_list().index)
-    races_list = get_races_list().racename.to_dict()
+    races_list = get_items().racename.to_dict()
     response = jsonify({ 
       'message': 'Data received.',
       'data': races_list
+    }), 200
+
+    return response
+
+@app.route('/racemap', methods=['POST'])
+def get_race_maps():
+    race = request.json.get('race')
+
+    maps_data = get_items_map(race or 'france.70.3')
+
+    response = jsonify({ 
+      'message': 'Data received.',
+      'data': maps_data
     }), 200
 
     return response
