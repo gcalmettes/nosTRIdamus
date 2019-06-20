@@ -306,6 +306,7 @@ function renderWorld({ world }) {
         .attr('data-src', null)
         .attr('data-holder-rendered', null)
         .attr('style', null)
+        .attr('height', '100%')
       raceInfo.url
         .classed('disabled', false)
         .attr('href', element.url)
