@@ -1,7 +1,7 @@
 from flask import render_template, jsonify, request
 import json
 
-from .model.predict import get_most_similar_races_to, get_races_list, get_recommendations
+from .model.predict import get_races_list, get_recommendations
 from nostrappdamus import app
 
 
@@ -32,11 +32,9 @@ def get_recommendation():
         else:
             # recommendations = get_most_similar_races_to(race, filterBy='is_70.3', valueToMatch=False)
             recommendations = get_recommendations(race, model_number=model, filterBy='is_70.3', valueToMatch=False)
-        results = (
-            recommendations.reset_index()
-            .rename(columns={"index": "race"})
-            .to_json(orient='records')
-        )
+
+        results = recommendations.to_json(orient='records')
+
         response = jsonify({ 
           'message': 'Data received.',
           'data': json.loads(results)
@@ -60,3 +58,4 @@ def get_races():
     }), 200
 
     return response
+
