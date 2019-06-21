@@ -97,3 +97,5 @@ def get_items_map(raceId='boulder'):
     map_dict = items_map.loc[raceId].to_dict()
     map_dict['raceId'] = raceId
     return map_dict
+
+

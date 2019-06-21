@@ -19,20 +19,28 @@ def about():
 @app.route('/recommend', methods=['POST'])
 def get_recommendation():
 
-    race = request.json.get('race')
-    filterBy = request.json.get('filterBy')
-    model = request.json.get('model')
+    args = request.json
+    race = args.get('race')
+    filterBy = args.get('filterBy')
+    model = args.get('model')
+
+    # experience type: 0 -> vacation, 1 -> enjoy, 2 -> performance
+    # difficulty: 1, 2, 3, 4
+    options = {
+      'experience_type': args.get('raceExperience'),
+      'difficulty': args.get('raceDifficulty')
+    }
 
     if race:
         if filterBy == 'all':
             # recommendations = get_most_similar_races_to(race)
-            recommendations = get_recommendations(race, model_number=model)
+            recommendations = get_recommendations(race, model_number=model, options=options)
         elif filterBy == '70.3':
             # recommendations = get_most_similar_races_to(race, filterBy='is_70.3', valueToMatch=True)
-            recommendations = get_recommendations(race, model_number=model, filterBy='is_70.3', valueToMatch=True)
+            recommendations = get_recommendations(race, model_number=model, filterBy='is_70.3', valueToMatch=True, options=options)
         else:
             # recommendations = get_most_similar_races_to(race, filterBy='is_70.3', valueToMatch=False)
-            recommendations = get_recommendations(race, model_number=model, filterBy='is_70.3', valueToMatch=False)
+            recommendations = get_recommendations(race, model_number=model, filterBy='is_70.3', valueToMatch=False, options=options)
 
         results = recommendations.to_json(orient='records')
 

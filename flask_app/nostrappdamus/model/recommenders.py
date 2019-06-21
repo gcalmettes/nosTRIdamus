@@ -12,7 +12,7 @@ class BaseRecommender:
 
 class ALSRecommender(BaseRecommender):
     '''Alternative Least Square models from the implicit library'''
-    def recommend(self, target, n=10, filterByField=False, valueToMatch=False):
+    def recommend(self, target, n=10, filterByField=False, valueToMatch=False, options={}):
         target_code = self.items_info.index.get_loc(target)
         similar = self.model.similar_items(target_code, len(self.items_info))
         
@@ -30,9 +30,10 @@ class ALSRecommender(BaseRecommender):
 
 class KNNRecommender(BaseRecommender):
     '''K-Nearest Neighbors from the scikit-learn library'''
-    def recommend(self, target, n=10, filterByField=False, valueToMatch=False):
+    def recommend(self, target, n=10, filterByField=False, valueToMatch=False, options={}):
         target_code = self.items_info.index.get_loc(target)
-        (distances, indices) = self.model.kneighbors(self.matrix[target_code].reshape(1, -1), n_neighbors=len(self.items_info))
+        matrix = self.getTransformedMatrix(options)
+        (distances, indices) = self.model.kneighbors(matrix[target_code].reshape(1, -1), n_neighbors=len(self.items_info))
         df_distances = pd.concat([
             pd.Series(self.items_info_reset.loc[indices[0], 'race'].values, name='race'), 
             pd.Series(distances[0], name='similarity')
@@ -43,3 +44,7 @@ class KNNRecommender(BaseRecommender):
             df_order = df_order.loc[df_order[filterByField] == valueToMatch]
 
         return df_order.iloc[:n+1]
+
+    def getTransformedMatrix(self, options):
+      
+      return self.matrix

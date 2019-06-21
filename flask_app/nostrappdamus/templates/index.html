@@ -1,59 +1,42 @@
 {% extends "layout.html" %}
 {% block head %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-slider.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/open-iconic-bootstrap.min.css') }}">
 {% endblock %}
 {% block title %}Index{% endblock %}
 {% block content %}
   <h1>Hey there!</h1>
   <h4>Want to know what your next race will be? You're at the right place!</h4>
-  <div class="container-fluid">
+  
+  <div class="container-fluid top-pad">
     <div class="row ">
       <div class="col-md">
         
-      <!-- <div class="card"> -->
-        <div class="row">
+        <div class='row bottom-pad'>
           <div class="col-6">
-
-            <div>
-              Pick a reference race or give us some details about your expectations with the sliders on the right!
+            <div class='title'> Which race did you like? </div>
+          </div>
+          <div class="col-6">
+            <div class='d-flex flex-row'>
+              <div class='title flex-grow-1'> What are you looking for? </div>
+              <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="switchControls">
+                <label class="custom-control-label" for="switchControls"></label>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <div class="input-group mb-2">
+        <div class="row bottom-pad">
+          <div class="col-6 right-border">
+            <div class="input-group mb-2 bottom-pad">
               <input id="race-input" type="text" class="form-control" placeholder="Which race did you liked?" aria-describedby="basic-addon2">
               <div class="input-group-append">
                 <button class="btn btn-outline-secondary" type="button" onClick=showRecommendations()>Submit</button>
               </div>
             </div>
-          </div>
 
-          <div class="col-6">
-            <!-- <input id="ex6" type="text" data-slider-min="-5" data-slider-max="20" data-slider-step="1" data-slider-value="3"/>
-            <span id="ex6CurrentSliderValLabel">Current Slider Value: <span id="ex6SliderVal">3</span></span> -->
-            <div class="slider-container">
-            <!-- <span id="slider-racetype-label" class="hidden">Choose</span> -->
-              <input id="slider-racetype" type="text"
-                  data-provide="slider"
-                  data-slider-ticks="[1, 2, 3, 4]"
-                  data-slider-ticks-labels='["Family", "Vacation", "Performance", "Pro"]'
-                  data-slider-min="1"
-                  data-slider-max="3"
-                  data-slider-step="1"
-                  data-slider-value="3"
-                  data-slider-tooltip="hide" />
-              
-              <input id="slider-racedifficulty" type="text"/>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <div class="container-fluid remove-all-margin-padding">
-          <div class="row no-gutters">
-            <div class="col">
-              
-              <div id="races-filter" class="btn-group btn-group-toggle col-10 remove-all-margin-padding" data-toggle="buttons">
+              <div id="races-filter" class="btn-group btn-group-toggle col-12 remove-all-margin-padding" data-toggle="buttons">
                 <label class="btn btn-secondary btn_colored active">
                   <input type="radio" name="options" value='all' id="option1" autocomplete="off" checked> No Filter
                 </label>
@@ -65,41 +48,54 @@
                 </label>
               </div>
 
-            </div>
-            <div class="col">
+          </div>
+
+          <div class="col-6">
+            <div id='screen'></div>
+
+            <div class="container-fluid slider-container no-padding">
+              <span id="slider-racetype-label">Experience sought</span>
               
-              <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                  <label class="input-group-text" for="modelSelect">Model</label>
-                </div>
-                <select class="custom-select" id="modelSelect">
-                  <option selected value="0">Choose ...</option>
-                  <option value="0">ALS</option>
-                  <option value="1">KNN</option>
-                  <option value="2">KNN SVD (10)</option>
-                  <!-- <option value="3">Content (TBI)</option> -->
-                </select>
+              <div class='d-flex flex-row justify-content-center bottom-pad-small'>
+                <input id="slider-raceexperience" data-slider-id="slider-raceexperience" type="text"
+                  data-slider-id="slider-racetype"
+                  data-provide="slider"
+                  data-slider-ticks="[0, 1, 2]"
+                  data-slider-ticks-labels='["Vacation", "Enjoy", "Performance"]'
+                  data-slider-min="0"
+                  data-slider-max="2"
+                  data-slider-step="1"
+                  data-slider-value="1"
+                  data-slider-tooltip="hide" />
+              
               </div>
 
+              <span id="slider-racetype-label">Race difficulty</span>
+              <div class="d-flex flex-row justify-content-center">
+                <div class="d-flex flex-grow-1 justify-content-center">
+                  <span class="oi oi-thumb-up up-color" aria-hidden="true"></span>  
+                </div>
+                <input class="flex-grow-1" id="slider-racedifficulty" data-slider-id="slider-racedifficulty" type="text"/>
+                <div class="d-flex flex-grow-1 justify-content-center">
+                  <span class="oi oi-fire fire-color" aria-hidden="true"></span>  
+                </div>
+              </div>
 
             </div>
           </div>
         </div>
-
-      <!-- </div> -->
+        
+        <div class="row">
+          <table id="result-table" class='table'></table>
+        </div>
       
-      <!-- <div class="card"> -->
-
-        <table id="result-table" class='table'></table>
-      
-       <!-- </div> -->
-
       </div>
+
       <div class="col-md">
 
           <div class="card">
             <div class="card-header">
-              The map
+              The Ironman world
             </div>
             <div id="globe"></div>
           </div>
@@ -124,8 +120,6 @@
                 </div>
 
               </div>
-              <!-- <p class="card-text">With supporting text below as a natural lead-in to additional content.</p> -->
-              <!-- <a class="btn btn-primary" id="info-raceurl">Register</a> -->
             </div>
           </div>
 

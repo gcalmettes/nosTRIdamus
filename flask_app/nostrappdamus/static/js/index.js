@@ -179,18 +179,23 @@ const getKey = (obj,val) => Object.keys(obj).find(key => obj[key] === val)
 /**** GET RECOMMENDATIONS ***/
 /****************************/
 
+let isAdvancedChecked = false
+
 async function showRecommendations(){
 
   const pickedRace = document.getElementById('race-input').value
   const filterRace = document.querySelector('input[name="options"]:checked').value
-  const pickedModel = document.getElementById('modelSelect').value
+  const raceExperience = document.querySelector('input[data-slider-id=slider-raceexperience]').value
+  const raceDifficulty = document.querySelector('input[data-slider-id=slider-racedifficulty]').value
 
   const locations = await sendRequest({ 
     url: '/recommend', 
     args: {
       race: raceslist[pickedRace], 
       filterBy: filterRace,
-      model: pickedModel
+      raceExperience: raceExperience,
+      raceDifficulty: raceDifficulty,
+      model: Number(isAdvancedChecked)
     }, 
     method: 'POST' 
   }).then(d => {
@@ -324,7 +329,14 @@ const sliderRaceDifficulty = new Slider("#slider-racedifficulty", {
   min: 1,
   max: 5
 });
-sliderRaceDifficulty.on('slide', function(sliderValue) {
-  console.log(sliderValue)
-  // document.getElementById('slider-racedifficulty').textContent = sliderValue;
-});
+
+const screenDiv = document.getElementById('screen')
+
+document.getElementById('switchControls').addEventListener('change', function(e) {
+  isAdvancedChecked = e.target.checked
+  if (e.target.checked) {
+    screenDiv.style.display='none'
+  } else {
+    screenDiv.style.display='block'
+  }
+})

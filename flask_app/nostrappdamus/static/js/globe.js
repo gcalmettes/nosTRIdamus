@@ -32,7 +32,7 @@ const tooltip = d3.select("body")
     .attr("class", "tooltip")       
     .style("opacity", 0)
 
-d3.json("https://unpkg.com/world-atlas/world/110m.json")
+d3.json("./static/js/data/world-110m.json")
     .then(worldData => {
       const world = topojson.feature(worldData, worldData.objects.land)
       const { updateScene, drawLocationOnSVG, updateLocations, updateElementStatus, resetInfo } = renderWorld({ world })

@@ -1,5 +1,5 @@
-@import url("https://fonts.googleapis.com/css?family=Lobster:400");
-@import url("https://fonts.googleapis.com/css?family=Raleway:400,400i,700,700i");
+/*@import url("https://fonts.googleapis.com/css?family=Lobster:400");
+@import url("https://fonts.googleapis.com/css?family=Raleway:400,400i,700,700i");*/
 
 .navbar-brand {
   font-size: 20px;
@@ -12,13 +12,93 @@
   color: #333333;
 }
 
-
 /***************************************/
 /**********  Misc Elements  ***********/
 /**************************************/
 
 .btn_colored.active {
     background-color: #E24A33 !important;
+}
+
+.no-padding {
+  padding: 0 !important;
+}
+
+.title {
+  color: black;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.bottom-pad {
+  margin-bottom: 15px !important;
+}
+
+.bottom-pad-small {
+  margin-bottom: 10px !important;
+}
+
+.top-pad {
+  margin-top: 15px !important;
+}
+
+#screen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  opacity: 0.7;
+}
+/***************************************/
+/***************  Icons  ***************/
+/***************************************/
+
+.oi{
+  /*margin-left: 5px;
+  margin-right: 5px;*/
+  font-size: 1.5em;
+}
+
+.up-color {
+  color: #E7B63F  ;
+}
+
+.fire-color{
+  color: #E24A33;
+}
+
+.right-border {
+  border-right: 1px solid #777777;
+}
+
+/***************************************/
+/************    Sliders   *************/
+/**************************************/
+
+#slider-racedifficulty .slider-handle,
+#slider-raceexperience .slider-handle {
+  background:  #777777 ;
+}
+#slider-racedifficulty .slider-selection,
+#slider-raceexperience .slider-selection {
+  background: #00BFFF;
+}
+
+#slider-raceexperience div.slider-tick.in-selection {
+  background: #00BFFF;
+}
+
+#slider-raceexperience div.slider-tick-label {
+  color: #777777;
+  font-size: 0.8em;
+}
+#slider-raceexperience div.slider-tick-label.label-is-selection {
+  color: #E24A33;
 }
 
 
@@ -123,18 +203,6 @@ table {
 
 
 /***************************************/
-/************    Sliders   *************/
-/**************************************/
-
-.slider-container > .slider.slider-horizontal {
-    width:100%;
-  }
-
-.slider-selection .tick-slider-selection {
-    color: red !important;
-  }
-
-/***************************************/
 /*********   Autocomplete   ************/
 /**************************************/
 
@@ -187,3 +255,84 @@ input[type=submit] {
   background-color: DodgerBlue !important; 
   color: #ffffff; 
 }
+
+
+
+/*
+
+#E24A33 : red
+#348ABD : blue
+#988ED5 : purple
+#777777 : gray
+#FBC15E : yellow
+#8EBA42 : green
+#FFB5B8 : pink
+
+#00BFFF : neon blue
+#97FFFF : neon light blue
+#00CD00 : neon green
+#CAFF70 : neon light green
+
+#66FF00 : green
+#CC0033 : red
+
+#332288 dark blue
+#88CCEE light blue
+#44AA99 light green
+#117733 dark green
+#999933 dark yellow/brown
+#DDCC77 light yellow/brown
+#CC6677 pink/red ligth
+#882255 purple
+#AA4499 bright purple
+
+UBER
+#1FBAD6
+#EDCA3A
+#F25754
+#E6B0F1
+#C0C0C8
+#B646B0
+#9BE7FF
+#8BC53F
+
+#E7B63F yellow
+#F28544 orange
+#D34328 red
+#CA3773 pink/purple
+#86277A purple
+#624D9A blue/purple
+#54BACE blue light
+#4B88BE blue
+#589772 green
+
+#F4E2B1 pale yellow
+#FBCCB8 pale orange
+#EEB1AC pale pink
+
+
+
+#81BFDA
+#7192BC
+#FCFF84
+#DDAE48
+#F69BEC
+#A82C64
+#42E576
+#2E8156
+
+
+#5D7DE9
+#E1D044
+#34C3DE
+#D342A1
+#C37F24
+#DE4263
+#5DB732
+#555555
+#BBC740
+#EB7D9D
+#F09BB3
+
+
+*/
