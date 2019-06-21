@@ -31,7 +31,7 @@
             <span id="ex6CurrentSliderValLabel">Current Slider Value: <span id="ex6SliderVal">3</span></span> -->
             <div class="slider-container">
             <!-- <span id="slider-racetype-label" class="hidden">Choose</span> -->
-            <input id="slider-racetype" type="text"
+              <input id="slider-racetype" type="text"
                   data-provide="slider"
                   data-slider-ticks="[1, 2, 3, 4]"
                   data-slider-ticks-labels='["Family", "Vacation", "Performance", "Pro"]'
@@ -40,6 +40,9 @@
                   data-slider-step="1"
                   data-slider-value="3"
                   data-slider-tooltip="hide" />
+              
+              <input id="slider-racedifficulty" type="text"/>
+
             </div>
 
           </div>
@@ -134,17 +137,38 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="moreInfoLabel">Details about the race</h5>
+            <h5 class="modal-title" id="moreInfoLabel"></h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <div>Some text about the bike</div>
-            <div id="bike-elevation-chart"></div>
-            <div>Some more text about the run</div>
-            <div id="run-elevation-chart"></div>
-          </div>
+            
+            <div class="activity-label">Bike leg:</div>
+            
+            <div class="activity-chart"id="bike-elevation-chart">
+              <div class="activity-info" id="bike-info">test</div>
+            </div>
+
+            <hr />
+            
+            <div class="activity-label">Run leg:</div>
+
+            <div class="activity-chart" id="run-elevation-chart">
+              <div class="activity-info" id="run-info">test</div>
+            </div>
+
+            <hr />
+
+            <div class="activity-label">Typical weather:</div>
+            
+            <div class="row container">
+              <div class="col-4">
+                <canvas id="weather-icon" width="80" height="80"></canvas>
+              </div>
+              <div class="col-8 weather-info" id="weather-info"></div>
+            </div>
+            
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
@@ -161,6 +185,7 @@
   <script src="{{ url_for('static', filename='js/vendor/d3-inertia.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/vendor/holder.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/vendor/bootstrap-slider.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/vendor/skycons.js') }}"></script>
 
   <!-- page specifics -->
   <script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>

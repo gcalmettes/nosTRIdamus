@@ -70,11 +70,37 @@ div.tooltip {
 
 
 /***************************************/
-/**********  Race profile   ***********/
-/**************************************/
+/********  Race details modal   ********/
+/***************************************/
+
+.activity-chart {
+  position: relative;
+}
 
 .activity-chart>path {
   fill: #FBCCB8;
+}
+
+.activity-label {
+  color: black;
+  font-weight: bold;
+  text-decoration: underline;
+
+}
+
+.activity-info {
+  position: absolute;
+  top: 1px;
+  right: 20px;
+}
+
+.weather-info {
+  display: flex;
+  align-items: center;
+}
+
+#weather-icon{
+  margin-top: 10px;
 }
 
 

@@ -83,7 +83,10 @@ def get_items():
         ]
         items = items_full.loc[:, columns_selection]
         # map info
-        items_map = items_full.loc[:, ['run_elevation_map', 'bike_elevation_map']]
+        items_map = items_full.loc[:, [
+            'run_elevation_map', 'bike_elevation_map', 'weather_icon', 'weather_summary',
+            'bike_elevationGain', 'run_elevationGain'
+        ]]
         items_map['run_elevation_map'] =  items_map['run_elevation_map'].map(lambda x: json.loads(x))
         items_map['bike_elevation_map'] =  items_map['bike_elevation_map'].map(lambda x: json.loads(x))
         return items

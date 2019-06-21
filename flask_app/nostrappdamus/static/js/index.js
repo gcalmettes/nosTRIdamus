@@ -2,8 +2,13 @@
 // file specific variable
 let raceslist
 
+
+/***********************************/
+/**** Activity profiles / info *****/
+/***********************************/
+
 const chartsConfig = {
-  width: 400,
+  width: 450,
   height: 150,
   margins: {
     left: 50,
@@ -11,6 +16,11 @@ const chartsConfig = {
     right: 10,
     bottom: 50
   }
+}
+
+const convert = {
+  m2mile: 0.000621371,
+  m2foot: 3.28
 }
 
 const xScale = d3.scaleLinear()
@@ -26,14 +36,14 @@ const axisBottom = d3.axisBottom()
   .ticks(5)
 
 const activityLine = d3.area()
-  .x(d => xScale(d.x))
-  .y1(d => yScale(d.y))
-  .curve(d3.curveCatmullRom.alpha(0.5))
+  .x(d => xScale(d.x*convert.m2mile))
+  .y1(d => yScale(d.y*convert.m2foot))
+  .curve(d3.curveBasis)
 
 const drawChart = ({ activity, data }) => {
-  xScale.domain(d3.extent(data, d => d.x))
-  const [ yMin, yMax] = d3.extent(data, d => d.y)
-  yScale.domain([yMin, yMax > 300 ? yMax : 300 ])
+  xScale.domain(d3.extent(data, d => d.x*convert.m2mile))
+  const [ yMin, yMax] = d3.extent(data, d => d.y*convert.m2foot)
+  yScale.domain([yMin, yMax > yMin+500 ? yMax : yMin+500 ])
   activityLine
     .y0(d => yScale(yMin))
 
@@ -82,9 +92,67 @@ const drawChart = ({ activity, data }) => {
       update => update
         .call(axisBottom)
     )
-    
+
+  g.selectAll('.axis-bottom-label')
+    .data([null])
+    .join(
+      enter => enter.append('text')
+        .attr('class', 'axis-bottom-label')
+        .attr('transform', `translate(${(chartsConfig.width - chartsConfig.margins.left -  chartsConfig.margins.right)/2}, ${chartsConfig.height-chartsConfig.margins.top-chartsConfig.margins.bottom/2.5})`)
+        .style("text-anchor", "middle")
+        .style("font-size", 12)
+        .text("Distance (mi)")
+    )
+
+  g.selectAll('.axis-left-label')
+    .data([null])
+    .join(
+      enter => enter.append('text')
+        .attr('class', 'axis-left-label')
+        .attr('x', `${-(chartsConfig.height - chartsConfig.margins.top -  chartsConfig.margins.bottom)/2}`)
+        .attr('y', `${-chartsConfig.margins.left/1.5}`)
+        .attr('transform', `rotate(-90)`)
+        .style("text-anchor", "middle")
+        .style("text-align", "center")
+        .style("font-size", 12)
+        .text("Elevation (ft)")
+
+    )
 }
 
+const addActivityInfo = ({ activity, data }) => {
+  // elevation gain
+  const activityInfo = document.getElementById(`${activity}-info`)
+  activityInfo.textContent = `Elevation gain: ${data.elevation.toFixed(0)} ft`
+
+  // weather info
+  const weatherInfo = document.getElementById(`weather-info`)
+  weatherInfo.textContent = `${data.weatherSummary}`
+
+  // by default, icons are black but you can color them
+  // const skycons = new Skycons({"color": "pink"});
+
+  // If you want to add more colors :
+  // var skycons = new Skycons({"monochrome": false});
+  // you can now customize the color of different parts
+  // main, moon, fog, fogbank, cloud, snow, leaf, rain, sun
+  const skycons = new Skycons({
+   monochrome: false,
+   colors: {
+     cloud: '#C0C0C8',
+     snow: '#1FBAD6',
+     leaf: '#8EBA42',
+     rain: '#1FBAD6', 
+     sun: '#FBC15E',
+     fog: '#C0C0C8',
+     fogbank: 'fogbank',
+   }
+   });
+
+  skycons.set("weather-icon", data.weatherIcon);
+  // start animation!
+  skycons.play();
+}
 
 /****************************/
 /********** UTILS ***********/
@@ -201,11 +269,18 @@ async function showMaps(){
     method: 'POST' 
   })
   .then(json => {
-    drawChart({activity: 'bike', data: json.data['bike_elevation_map']})
-    drawChart({activity: 'run', data: json.data['run_elevation_map']})
-    console.log(json.data)
-    // console.log(JSON.parse(json.data['run_elevation_map']))
-    // console.log(JSON.parse(json.data))
+    drawChart({ activity: 'bike', data: json.data['bike_elevation_map'] })
+    drawChart({ activity: 'run', data: json.data['run_elevation_map'] })
+    addActivityInfo({ activity: 'bike', data: {
+      elevation: json.data['bike_elevationGain'],
+      weatherSummary: json.data['weather_summary']
+    } })
+    addActivityInfo({ activity: 'run', data:  {
+      elevation: json.data['run_elevationGain'],
+      weatherSummary: json.data['weather_summary'],
+      weatherIcon: json.data['weather_icon']
+    } })
+    // console.log(json.data)
   })
 }
 
@@ -239,8 +314,17 @@ sendRequest({ url: '/racelist', method: 'GET' })
   })
 
 
-// // Without JQuery
-// var slider = new Slider("#ex6");
-// slider.on("slide", function(sliderValue) {
-//   document.getElementById("ex6SliderVal").textContent = sliderValue;
-// });
+/*******************************/
+/*********** SLIDERS ***********/
+/*******************************/
+
+const sliderRaceDifficulty = new Slider("#slider-racedifficulty", {
+  precision: 0,
+  value: 3,
+  min: 1,
+  max: 5
+});
+sliderRaceDifficulty.on('slide', function(sliderValue) {
+  console.log(sliderValue)
+  // document.getElementById('slider-racedifficulty').textContent = sliderValue;
+});
