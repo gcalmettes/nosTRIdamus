@@ -1,8 +1,0 @@
-# for each landing page:
-class="moduleWrap genericDesc eventDescription"
-
-
-container = response.xpath("//div[contains(@class, 'eventDescription')]")
-all_text = container.xpath('.//text()').getall()
-description = re.sub("\s+", " ", " ".join(all_text).strip())
-tokens = [t for t in description.split()]
