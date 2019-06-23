@@ -10,7 +10,7 @@ const shared = {
 
 // file specific global variables
 let timerWorld,
-    runTimerWorld = false,
+    runTimerWorld = true,
     hoveredElement = null,
     displayedElement = null,
     tooltipShown = false
