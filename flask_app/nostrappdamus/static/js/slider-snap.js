@@ -96,17 +96,18 @@ function slider_snap({
         .text(data[Math.round(x.invert(s[1])) - 1].name)
       // move brush handles      
       handle.attr("display", null)
-        .attr("transform", function(d, i) { return "translate(" + [ s[i], - h / 4] + ")"; });
-      // update view
-      // if the view should only be updated after brushing is over, 
-      // move these two lines into the on('end') part below
-      // svg.node().value = s.map(d => Math.round(x.invert(d)));
-      // svg.node().dispatchEvent(new CustomEvent("input"));
+        .attr("transform", (d, i) => `translate(${[ s[i], - h / 4]})`)
     })
     .on('end', function() {
       if (!d3.event.sourceEvent) return;
       const d0 = d3.event.selection.map(x.invert);
       const d1 = d0.map(Math.round)
+
+      // ensure a minimum with of 1
+      if (d1[0] >= d1[1]) {
+        d1[0] = Math.round(d0[0])
+        d1[1] = Math.round(d0[0] + 1)
+      }
       d3.select(this)
         .transition()
         .call(d3.event.target.move, d1.map(x))
