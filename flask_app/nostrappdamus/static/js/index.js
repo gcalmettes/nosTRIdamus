@@ -123,7 +123,7 @@ const drawChart = ({ activity, data }) => {
 const addActivityInfo = ({ activity, data }) => {
   // elevation gain
   const activityInfo = document.getElementById(`${activity}-info`)
-  activityInfo.textContent = `Elevation gain: ${data.elevation.toFixed(0)} ft`
+  activityInfo.textContent = `Elevation gain: ${(data.elevation*convert.m2foot).toFixed(0)} ft`
 
   // weather info
   const weatherInfo = document.getElementById(`weather-info`)
