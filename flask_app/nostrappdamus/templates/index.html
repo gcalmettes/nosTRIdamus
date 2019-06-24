@@ -35,18 +35,20 @@
                 <button class="btn btn-outline-secondary" type="button" onClick=showRecommendations()>Submit</button>
               </div>
             </div>
+            
+            <div class="bottom-pad" id='slider-months'></div>
 
-              <div id="races-filter" class="btn-group btn-group-toggle col-12 remove-all-margin-padding" data-toggle="buttons">
-                <label class="btn btn-secondary btn_colored active">
-                  <input type="radio" name="options" value='all' id="option1" autocomplete="off" checked> No Filter
-                </label>
-                <label class="btn btn-secondary btn_colored">
-                  <input type="radio" name="options" value='70.3' id="option2" autocomplete="off"> 70.3
-                </label>
-                <label class="btn btn-secondary btn_colored">
-                  <input type="radio" name="options" value='full' id="option3" autocomplete="off"> Full
-                </label>
-              </div>
+            <div id="races-filter" class="btn-group btn-group-toggle col-12 remove-all-margin-padding" data-toggle="buttons">
+              <label class="btn btn-secondary btn_colored active">
+                <input type="radio" name="options" value='all' id="option1" autocomplete="off" checked> No Filter
+              </label>
+              <label class="btn btn-secondary btn_colored">
+                <input type="radio" name="options" value='70.3' id="option2" autocomplete="off"> 70.3
+              </label>
+              <label class="btn btn-secondary btn_colored">
+                <input type="radio" name="options" value='full' id="option3" autocomplete="off"> Full
+              </label>
+            </div>
 
           </div>
 
@@ -184,6 +186,7 @@
   <!-- page specifics -->
   <script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
   <script src="{{ url_for('static', filename='js/globe.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/slider-snap.js') }}"></script>
   <script src="{{ url_for('static', filename='js/index.js') }}"></script>
   
 

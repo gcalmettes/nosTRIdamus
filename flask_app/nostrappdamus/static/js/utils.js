@@ -1,3 +1,8 @@
+const triggerOnResize = fn => {
+  fn();
+  window.addEventListener('resize', fn);
+}
+
 const sendRequest = config => {
   const { url = '', args = {}, method = 'POST' } = config
   let request

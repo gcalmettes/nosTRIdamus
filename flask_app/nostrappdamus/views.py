@@ -23,6 +23,8 @@ def get_recommendation():
     race = args.get('race')
     filterBy = args.get('filterBy')
     model = args.get('model')
+    months_range = args.get('months_range')
+    print(months_range)
 
     # experience type: 0 -> vacation, 1 -> enjoy, 2 -> performance
     # difficulty: 1, 2, 3, 4

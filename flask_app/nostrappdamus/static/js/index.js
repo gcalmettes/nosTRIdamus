@@ -187,6 +187,7 @@ async function showRecommendations(){
   const filterRace = document.querySelector('input[name="options"]:checked').value
   const raceExperience = document.querySelector('input[data-slider-id=slider-raceexperience]').value
   const raceDifficulty = document.querySelector('input[data-slider-id=slider-racedifficulty]').value
+  const months_range = shared['months_range']
 
   const locations = await sendRequest({ 
     url: '/recommend', 
@@ -195,7 +196,8 @@ async function showRecommendations(){
       filterBy: filterRace,
       raceExperience: raceExperience,
       raceDifficulty: raceDifficulty,
-      model: Number(isAdvancedChecked)
+      model: Number(isAdvancedChecked),
+      months_range
     }, 
     method: 'POST' 
   }).then(d => {
@@ -322,6 +324,20 @@ sendRequest({ url: '/racelist', method: 'GET' })
 /*******************************/
 /*********** SLIDERS ***********/
 /*******************************/
+
+const slider = d3.select('#slider-months')
+triggerOnResize(() => {
+  // brush responsive on resize
+  slider_snap({
+    container: slider,
+    margin: {
+      top: 20,
+      bottom: 20,
+      left: 20,
+      right: 20
+    } 
+  })
+})
 
 const sliderRaceDifficulty = new Slider("#slider-racedifficulty", {
   precision: 0,

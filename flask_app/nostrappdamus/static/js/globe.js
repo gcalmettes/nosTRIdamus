@@ -346,10 +346,6 @@ function renderWorld({ world }) {
 /* ----------------- FUNCTIONS ----------------- */
 /* --------------------------------------------- */
 
-function triggerOnResize(fn){
-  fn();
-  window.addEventListener('resize', fn);
-}
 
 function createCanvasSvgLayers({selection, className = 'main' }){
   const { x, y, width, height } = selection.node().getBoundingClientRect()
