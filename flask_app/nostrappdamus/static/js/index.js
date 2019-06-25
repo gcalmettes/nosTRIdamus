@@ -246,8 +246,11 @@ async function showRecommendations(){
     shared.resetInfo() 
     shared.setLocations({ cities: newLocations })
     shared.drawLocations()
-
-    // pre-load the images
+    // the last location is the reference point
+    const [lon, lat] = newLocations[newLocations.length-1].coordinates
+    shared.centerGlobeTo({lat: lat, lon: lon})
+    
+    // preload images
     const imgs = {}
     for (const loc of newLocations ){
       imgs[loc.race] = new Image()

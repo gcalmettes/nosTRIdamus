@@ -5,12 +5,13 @@ const shared = {
   drawLocations: null,
   setLocations: null,
   showInfo: null,
-  resetInfo: null
+  resetInfo: null,
+  centerGlobeTo: null
 }
 
 // file specific global variables
 let timerWorld,
-    runTimerWorld = true,
+    runTimerWorld = false,
     hoveredElement = null,
     displayedElement = null,
     tooltipShown = false
@@ -35,13 +36,14 @@ const tooltip = d3.select("body")
 d3.json("./static/js/data/world-110m.json")
     .then(worldData => {
       const world = topojson.feature(worldData, worldData.objects.land)
-      const { updateScene, drawLocationOnSVG, updateLocations, updateElementStatus, resetInfo } = renderWorld({ world })
+      const { updateScene, drawLocationOnSVG, updateLocations, updateElementStatus, resetInfo, centerGlobeTo } = renderWorld({ world })
 
       // update global variables
       shared['drawLocations'] = drawLocationOnSVG
       shared['setLocations'] = updateLocations
       shared['showInfo'] = updateElementStatus
       shared['resetInfo'] = resetInfo
+      shared['centerGlobeTo'] = centerGlobeTo
 
       triggerOnResize(() => updateScene())
 
@@ -338,7 +340,22 @@ function renderWorld({ world }) {
     }
   }
 
-  return { updateScene, drawLocationOnSVG, updateLocations, updateElementStatus, resetInfo }
+
+  function centerGlobeTo({ lat, lon }) {
+    d3.transition()
+        .duration(800)
+        .tween("rotate", function() {
+          const rotate = d3.interpolate(projection.rotate(), [-lon, -lat]);
+          return function(t) {
+            projection.rotate(rotate(t));
+            drawGlobeOnCanvas()
+            drawLocationOnSVG()
+          };
+        })
+        .transition()
+  }
+
+  return { updateScene, drawLocationOnSVG, updateLocations, updateElementStatus, resetInfo, centerGlobeTo }
 }
 
 
