@@ -227,6 +227,7 @@ async function showRecommendations(){
           // show tooltip
           const element = locations.filter(d => d.race == row.race)[0]
           shared.showInfo( makePoint(element, false, true))
+          shared.centerGlobeTo({lat: element.lat, lon: element.lon})
 
         },
         mouseOut: (row, i, array) => {
