@@ -24,7 +24,6 @@ def get_recommendation():
     filterBy = args.get('filterBy')
     model = args.get('model')
     months_range = args.get('months_range')
-    print(months_range)
 
     # experience type: 0 -> vacation, 1 -> enjoy, 2 -> performance
     # difficulty: 1, 2, 3, 4
@@ -36,13 +35,15 @@ def get_recommendation():
     if race:
         if filterBy == 'all':
             # recommendations = get_most_similar_races_to(race)
-            recommendations = get_recommendations(race, model_number=model, options=options)
+            recommendations = get_recommendations(race, model_number=model, options=options, months_range=months_range)
         elif filterBy == '70.3':
             # recommendations = get_most_similar_races_to(race, filterBy='is_70.3', valueToMatch=True)
-            recommendations = get_recommendations(race, model_number=model, filterBy='is_70.3', valueToMatch=True, options=options)
+            recommendations = get_recommendations(race, model_number=model, filterBy='is_70.3', valueToMatch=True, 
+                                                  options=options, months_range=months_range)
         else:
             # recommendations = get_most_similar_races_to(race, filterBy='is_70.3', valueToMatch=False)
-            recommendations = get_recommendations(race, model_number=model, filterBy='is_70.3', valueToMatch=False, options=options)
+            recommendations = get_recommendations(race, model_number=model, filterBy='is_70.3', valueToMatch=False, 
+                                                  options=options, months_range=months_range)
 
         results = recommendations.to_json(orient='records')
 

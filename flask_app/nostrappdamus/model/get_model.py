@@ -78,7 +78,7 @@ def get_items():
         # load races info
         items_full = pd.read_csv(look_up_items['file'], index_col=look_up_items['index_col'])
         columns_selection = [
-            'racename', 'date', 'imlink', 'city', 'image_url', 'logo_url',
+            'racename', 'date', 'month', 'imlink', 'city', 'image_url', 'logo_url',
             'region', 'images', 'country_code', 'lat', 'lon', 'is_70.3'
         ]
         items = items_full.loc[:, columns_selection]

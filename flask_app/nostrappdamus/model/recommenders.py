@@ -12,7 +12,7 @@ class BaseRecommender:
 
 class ALSRecommender(BaseRecommender):
     '''Alternative Least Square models from the implicit library'''
-    def recommend(self, target, n=10, filterByField=False, valueToMatch=False, options={}):
+    def recommend(self, target, n=10, filterByField=False, valueToMatch=False, months_range=[0, 12], options={}):
         target_code = self.items_info.index.get_loc(target)
         similar = self.model.similar_items(target_code, len(self.items_info))
         
@@ -25,12 +25,15 @@ class ALSRecommender(BaseRecommender):
         if filterByField:
             df_order = df_order.loc[df_order[filterByField] == valueToMatch]
 
+        # filter by months into months range
+        df_order = df_order.loc[(df_order['month'] > months_range[0]) & (df_order['month'] <= months_range[1])]
+
         return df_order.iloc[:n+1]
 
 
 class KNNRecommender(BaseRecommender):
     '''K-Nearest Neighbors from the scikit-learn library'''
-    def recommend(self, target, n=10, filterByField=False, valueToMatch=False, options={}):
+    def recommend(self, target, n=10, filterByField=False, valueToMatch=False, months_range=[0, 12], options={}):
         target_code = self.items_info.index.get_loc(target)
         matrix = self.getTransformedMatrix(options)
         (distances, indices) = self.model.kneighbors(matrix[target_code].reshape(1, -1), n_neighbors=len(self.items_info))
@@ -42,6 +45,9 @@ class KNNRecommender(BaseRecommender):
         df_order = df_distances.merge(self.items_info, left_on='race', right_on='race', how='left')
         if filterByField:
             df_order = df_order.loc[df_order[filterByField] == valueToMatch]
+
+        # filter by months into months range
+        df_order = df_order.loc[(df_order['month'] > months_range[0]) & (df_order['month'] <= months_range[1])]
 
         return df_order.iloc[:n+1]
 
