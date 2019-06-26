@@ -18,22 +18,14 @@ models_list = {
     },
     'KNN_Content': {
         'name': 'KNN content-based',
-        'model': './nostrappdamus/model/data/knn_content.sav',
+        'model': None,
         'df': {
             'file': './nostrappdamus/model/data/knn_content_df.csv', 
             'index_col': 'race'
         },
-        'matrix': './nostrappdamus/model/data/knn_content_matrix.npy',
-        'hash_map': './nostrappdamus/model/data/knn_content_hash.json',
-        'load_matrix': np.load,
-        'class': KNNRecommender
-    },
-    'KNN_SVD_Content': {
-        'name': 'KNN SVD 10 content-based',
-        'model': './nostrappdamus/model/data/knn_svd_content.sav',
-        'matrix': './nostrappdamus/model/data/knn_svd_content_matrix.npy',
-        'hash_map': './nostrappdamus/model/data/knn_svd_content_hash.json',
-        'load_matrix': np.load,
+        'matrix': None,
+        'hash_map': None,
+        'load_matrix': None,
         'class': KNNRecommender
     }
 }
@@ -51,8 +43,8 @@ def get_model(model_name):
     config = models_list.get(model_name)
     if config:
         model_name = config['name']
-        model_file = config['model']
         model_class = config['class']
+        model_file = config.get('model')
         # df/matrix feeding the model
         model_df = config.get('df', False)
         matrix_file = config.get('matrix', False) 
@@ -60,8 +52,11 @@ def get_model(model_name):
         model_hash_map = config.get('hash_map', False)
 
     # load model
-    with open(model_file, 'rb') as f:
-        trained_model = pickle.load(f)
+    if type(model_file) != type(None):
+        with open(model_file, 'rb') as f:
+            trained_model = pickle.load(f)
+    else:
+        trained_model = None
 
     # load matrix/df
     if not model_df:

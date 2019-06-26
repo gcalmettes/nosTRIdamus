@@ -1,11 +1,15 @@
 import numpy as np
 import pandas as pd
+from sklearn.neighbors import NearestNeighbors
 
 
 class BaseRecommender:
     def __init__(self, model, matrix=None, items_info=None, pos_to_item_mapping=None, df=None, name='Model'):
         self.name = name
         self.model = model
+        if type(self.model) == type(None):
+            # Default model is Nearest Neighbors
+            self.model = NearestNeighbors(metric='cosine', algorithm='brute', n_neighbors=5)
         self.matrix = matrix
         self.df = df
         if pos_to_item_mapping:
