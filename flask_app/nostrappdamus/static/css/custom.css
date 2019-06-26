@@ -68,6 +68,10 @@
   color: #E7B63F  ;
 }
 
+.grey-color {
+  color: #888888;
+}
+
 .fire-color{
   color: #E24A33;
 }
@@ -75,6 +79,7 @@
 .right-border {
   border-right: 1px solid #777777;
 }
+
 
 /***************************************/
 /************    Sliders   *************/
@@ -86,6 +91,15 @@
 }
 #slider-racedifficulty .slider-selection,
 #slider-raceexperience .slider-selection {
+  background: #00BFFF;
+}
+
+#slider-racesize .slider-handle,
+#slider-racesize .slider-handle {
+  background:  #777777 ;
+}
+#slider-racesize .slider-selection,
+#slider-racesize .slider-selection {
   background: #00BFFF;
 }
 

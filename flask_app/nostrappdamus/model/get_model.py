@@ -19,6 +19,10 @@ models_list = {
     'KNN_Content': {
         'name': 'KNN content-based',
         'model': './nostrappdamus/model/data/knn_content.sav',
+        'df': {
+            'file': './nostrappdamus/model/data/knn_content_df.csv', 
+            'index_col': 'race'
+        },
         'matrix': './nostrappdamus/model/data/knn_content_matrix.npy',
         'hash_map': './nostrappdamus/model/data/knn_content_hash.json',
         'load_matrix': np.load,
@@ -48,24 +52,36 @@ def get_model(model_name):
     if config:
         model_name = config['name']
         model_file = config['model']
-        matrix_file = config['matrix'] 
-        load = config['load_matrix']
         model_class = config['class']
-        model_hash_map = config['hash_map']
+        # df/matrix feeding the model
+        model_df = config.get('df', False)
+        matrix_file = config.get('matrix', False) 
+        load = config.get('load_matrix', False)
+        model_hash_map = config.get('hash_map', False)
 
     # load model
     with open(model_file, 'rb') as f:
         trained_model = pickle.load(f)
-    # load matrix
-    matrix = load(matrix_file)
+
+    # load matrix/df
+    if not model_df:
+        matrix = load(matrix_file)
+        df = None
+        # load hash map
+        with open(model_hash_map, 'r') as f:
+            hash_map = json.loads(f.read())
+    else:
+        df = pd.read_csv(model_df['file'], index_col=model_df['index_col'])
+        matrix = None
+        hash_map = None
+
     # make sure the items have been loaded into the variable space
     global items
     if type(items) == type(None):
         get_items()
-    # load hash map
-    with open(model_hash_map, 'r') as f:
-        hash_map = json.loads(f.read())
-    model = model_class(trained_model, matrix, items, hash_map, name=model_name)
+
+    model = model_class(trained_model, matrix=matrix, items_info=items, pos_to_item_mapping=hash_map, df=df, name=model_name)
+
     return model
 
 
@@ -79,7 +95,10 @@ def get_items():
         items_full = pd.read_csv(look_up_items['file'], index_col=look_up_items['index_col'])
         columns_selection = [
             'racename', 'date', 'month', 'imlink', 'city', 'image_url', 'logo_url',
-            'region', 'images', 'country_code', 'lat', 'lon', 'is_70.3'
+            'region', 'images', 'country_code', 'lat', 'lon', 'is_70.3', 'wc_slots',
+            'entrants_count_avg', 'run_score', 'bike_sinusoity', 'bike_score', 'attractivity_score',
+            'distance_to_nearest_airport', 'distance_to_nearest_airport_international',
+            'n_hotels', 'n_restaurants', 'n_entertainment'
         ]
         items = items_full.loc[:, columns_selection]
         # map info

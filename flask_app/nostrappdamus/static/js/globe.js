@@ -297,10 +297,18 @@ function renderWorld({ world }) {
         city = locationElements[0].trim()
         country = locationElements[1].trim()
         if (element.countryCode == 'USA') country = `USA (${country})`
-        description = `Country: ${country}<br>City: ${city}<br>Date: ${element.date || 'TBD'}`
+        description = `Country: ${country}`
+        description += `<br>City: ${city}`
+        description += `<br>Date: ${element.date || 'TBD'}`
+        description += `<br>Kona slots: ${element.slots}`
+        description += `<br>Airport distance: ${element.airport.toFixed(1)}mi (Int: ${element.airportInternational.toFixed(1)}mi)`
       } else {
         country = locationElements[0].trim()
-        description = `Country: ${country}<br>City: ---<br>Date: ${element.date || 'TBD'}`
+        description = `Country: ${country}`
+        description += `<br>City: ---`
+        description += `<br>Date: ${element.date || 'TBD'}`
+        description += `<br>Kona slots: ${element.slots}`
+        description += `<br>Airport distance: ${element.airport.toFixed(1)}mi (Int: ${element.airportInternational.toFixed(1)}mi)`
       }
       raceInfo.description.html(description)
       raceInfo.img
@@ -319,9 +327,9 @@ function renderWorld({ world }) {
 
     } else {
       // hide info
-      raceInfo.id.attr("value", null)//html('')
+      raceInfo.id.attr("value", null)
       raceInfo.name.html('Name:')
-      raceInfo.description.html('Country:<br>City:<br>Date:')
+      raceInfo.description.html('Country:<br>City:<br>Date:<br>Kona slots:<br>Airport distance:')
       raceInfo.url
         .classed('disabled', true)
 

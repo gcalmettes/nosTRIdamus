@@ -170,7 +170,18 @@ const makePoint = (d, isTarget, isSelect) => ({
   city: d.city,
   date: d.date,
   isTarget: isTarget,
-  isSelection: isSelect
+  isSelection: isSelect,
+  slots: d.wc_slots,
+  fieldSize: d.entrants_count_avg,
+  runScore: d.run_score,
+  bikeScore: d.bike_score,
+  bikeSinusoity: d.bike_sinusoity,
+  attractiveness: d.attractivity_score,
+  airport: convert.m2mile*1000*d.distance_to_nearest_airport,
+  airportInternational: convert.m2mile*1000*d.distance_to_nearest_airport_international,
+  hotels: d.n_hotels,
+  food: d.n_restaurants, 
+  entertainment: d.n_entertainment
 })
 
 const getKey = (obj,val) => Object.keys(obj).find(key => obj[key] === val)
@@ -187,6 +198,7 @@ async function showRecommendations(){
   const filterRace = document.querySelector('input[name="options"]:checked').value
   const raceExperience = document.querySelector('input[data-slider-id=slider-raceexperience]').value
   const raceDifficulty = document.querySelector('input[data-slider-id=slider-racedifficulty]').value
+  const raceSize = document.querySelector('input[data-slider-id=slider-racesize]').value
   const months_range = shared['months_range']
 
   const locations = await sendRequest({ 
@@ -194,8 +206,11 @@ async function showRecommendations(){
     args: {
       race: raceslist[pickedRace], 
       filterBy: filterRace,
-      raceExperience: raceExperience,
-      raceDifficulty: raceDifficulty,
+      options: {
+        raceExperience: raceExperience,
+        raceDifficulty: raceDifficulty,
+        raceSize: raceSize
+      },
       model: Number(isAdvancedChecked),
       months_range
     }, 
@@ -203,6 +218,7 @@ async function showRecommendations(){
   }).then(d => {
       const results = d.data
 
+      console.log(results)
       tabulate({ 
         id: 'result-table', 
         columns: [
@@ -344,7 +360,16 @@ triggerOnResize(() => {
 })
 
 const sliderRaceDifficulty = new Slider("#slider-racedifficulty", {
-  precision: 0,
+  precision: 1,
+  step: 0.5,
+  value: 3,
+  min: 1,
+  max: 5
+});
+
+const sliderRaceSize = new Slider("#slider-racesize", {
+  precision: 1,
+  step: 0.5,
   value: 3,
   min: 1,
   max: 5

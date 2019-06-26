@@ -7,7 +7,6 @@
 {% block content %}
   <h1>Hey there!</h1>
   <h4>Want to know what your next race will be? You're at the right place!</h4>
-  
   <div class="container-fluid top-pad">
     <div class="row ">
       <div class="col-md">
@@ -60,10 +59,9 @@
               
               <div class='d-flex flex-row justify-content-center bottom-pad-small'>
                 <input id="slider-raceexperience" data-slider-id="slider-raceexperience" type="text"
-                  data-slider-id="slider-racetype"
                   data-provide="slider"
                   data-slider-ticks="[0, 1, 2]"
-                  data-slider-ticks-labels='["Vacation", "Enjoy", "Performance"]'
+                  data-slider-ticks-labels='["Vacation", "Neutral", "Performance"]'
                   data-slider-min="0"
                   data-slider-max="2"
                   data-slider-step="1"
@@ -73,13 +71,24 @@
               </div>
 
               <span id="slider-racetype-label">Race difficulty</span>
-              <div class="d-flex flex-row justify-content-center">
+              <div class="d-flex flex-row justify-content-center bottom-pad">
                 <div class="d-flex flex-grow-1 justify-content-center">
                   <span class="oi oi-thumb-up up-color" aria-hidden="true"></span>  
                 </div>
                 <input class="flex-grow-1" id="slider-racedifficulty" data-slider-id="slider-racedifficulty" type="text"/>
                 <div class="d-flex flex-grow-1 justify-content-center">
                   <span class="oi oi-fire fire-color" aria-hidden="true"></span>  
+                </div>
+              </div>
+
+              <span id="slider-racetype-label">Race size</span>
+              <div class="d-flex flex-row justify-content-center">
+                <div class="d-flex flex-grow-1 justify-content-center">
+                  <span class="oi oi-person grey-color" aria-hidden="true"></span>  
+                </div>
+                <input class="flex-grow-1" id="slider-racesize" data-slider-id="slider-racesize" type="text"/>
+                <div class="d-flex flex-grow-1 justify-content-center">
+                  <span class="oi oi-people grey-color" aria-hidden="true"></span>  
                 </div>
               </div>
 

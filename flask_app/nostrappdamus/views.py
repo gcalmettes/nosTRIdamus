@@ -26,11 +26,9 @@ def get_recommendation():
     months_range = args.get('months_range')
 
     # experience type: 0 -> vacation, 1 -> enjoy, 2 -> performance
-    # difficulty: 1, 2, 3, 4
-    options = {
-      'experience_type': args.get('raceExperience'),
-      'difficulty': args.get('raceDifficulty')
-    }
+    # difficulty: 1, 2, 3, 4, 5
+    # size: 1, 2, 3, 4, 5
+    options = args.get('options')
 
     if race:
         if filterBy == 'all':
