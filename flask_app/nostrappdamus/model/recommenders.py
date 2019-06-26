@@ -19,7 +19,7 @@ class ALSRecommender(BaseRecommender):
         df_distances = pd.DataFrame([
             [self.items_info_reset.loc[code, 'race'], distance]
                 for (code,distance) in similar
-        ], columns=['race', 'distance'])
+        ], columns=['race', 'similarity'])
         
         df_order = df_distances.merge(self.items_info, left_on='race', right_on='race', how='left')
         if filterByField:
