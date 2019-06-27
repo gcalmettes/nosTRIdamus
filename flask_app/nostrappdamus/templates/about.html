@@ -1,14 +1,34 @@
 {% extends "layout.html" %}
-{% block title %}Index{% endblock %}
+{% block title %}About{% endblock %}
 {% block head %}
   {{ super() }}
   <style type="text/css">
-    .important { color: #336699; }
+    #linkedin {
+      line-height: 2px;
+      border-radius: 6px;
+      background: DodgerBlue;
+      font-weight: 700;
+      color: white;
+      width: 21px;
+      height: 21px;
+      display: flex;
+      align-items: center;
+      justify-content: center; 
+    }
   </style>
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
 {% endblock %}
 {% block content %}
-  <h1>This is the about page</h1>
-  <p class="important">
-    There will be some useful information there (at least I think ... ).
-  </p>
+  <div class="container-fluid">
+    <h1>Thanks for stopping by!</h1>
+    <p class="important">
+      NosTRIdamus was developed by Guillaume Calmettes as an Insight Data Science Fellow.
+    </p>
+    <div class='d-flex'>
+      <!-- Place this tag where you want the button to render. -->
+      <span class="margined"><a class="github-button" href="https://github.com/gcalmettes" aria-label="@gcalmettes on GitHub">Github @gcalmettes</a></span>
+      <span class="margined"><a class="twitter-hashtag-button margined" href="https://twitter.com/gcalmettes" data-show-count="false">@gcalmettes</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></span>
+      <span class="margined"><a href="https://www.linkedin.com/in/guillaume-calmettes" id="linkedin" target="_blank">IN</a></span>
+    </div>
+  </div>
 {% endblock %}
