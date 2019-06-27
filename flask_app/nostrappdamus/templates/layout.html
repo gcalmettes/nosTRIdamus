@@ -14,87 +14,29 @@
     {% block head %}
     {% endblock %}
     <style>
-      .demo a {
+      #page-content{
+        min-height: 1000px;
+      }
+
+      #arrow-down{
         position: absolute;
-        bottom: 20px;
-        left: 50%;
-        z-index: 2;
-        display: inline-block;
-        -webkit-transform: translate(0, -50%);
-        transform: translate(0, -50%);
-        color: #fff;
-        font : normal 400 20px/1 'Josefin Sans', sans-serif;
-        letter-spacing: .1em;
-        text-decoration: none;
-        transition: opacity .3s;
+        bottom: 10%;
+
+        margin-left: -25;
       }
-      .demo a:hover {
-        opacity: .5;
-      }
-      #section04 a {
-        padding-top: 60px;
-      }
-      #section04 a span {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        width: 24px;
-        height: 24px;
-        margin-left: -12px;
-        border-left: 1px solid #fff;
-        border-bottom: 1px solid #fff;
-        -webkit-transform: rotate(-45deg);
-        transform: rotate(-45deg);
-        -webkit-animation: sdb04 2s infinite;
-        animation: sdb04 2s infinite;
-        box-sizing: border-box;
-      }
-      @-webkit-keyframes sdb04 {
-        0% {
-          -webkit-transform: rotate(-45deg) translate(0, 0);
-        }
-        20% {
-          -webkit-transform: rotate(-45deg) translate(-10px, 10px);
-        }
-        40% {
-          -webkit-transform: rotate(-45deg) translate(0, 0);
-        }
-      }
-      @keyframes sdb04 {
-        0% {
-          transform: rotate(-45deg) translate(0, 0);
-        }
-        20% {
-          transform: rotate(-45deg) translate(-10px, 10px);
-        }
-        40% {
-          transform: rotate(-45deg) translate(0, 0);
-        }
-      }
+      
     </style>
   </head>
   <body>
-    <!-- <div class="bcg-img">
-      <div class="transbox">
-        <img class='logo' src="/static/img/nostridamus-logo.png" alt="">
-      </div>
-    </div> -->
     <!-- Full Page Image Header with Vertically Centered Content -->
     <header id="masthead" class="masthead">
       <div class="container h-100 transbox-parent demo">
         
-            <div class="transbox">
-              <img id='logo' class='logo' src="/static/img/nostridamus-logo.png" alt="">
-            </div>
-  <!--           <div>
-              <button id="btn-intro" type="button" class="btn btn-secondary">Show me!</button>  
-            </div> -->
-            <div>
-              <a class="ct-btn-scroll ct-js-btn-scroll" href="#main"><img alt="Arrow Down Icon" src="https://www.solodev.com/assets/anchor/arrow-down.png"></a>
-            </div>
+        <div class="transbox">
+          <img id='logo' class='logo' src="/static/img/nostridamus-logo.png" alt="">
+        </div>
+        <a id='arrow-down' href="#main"><img alt="Arrow Down Icon" src="/static/img/arrow-down.png"></a>
             
-            
-
       </div>
     </header>
     
@@ -115,7 +57,7 @@
         </div>
     </nav>
     <!-- Page Content -->
-    <section class="py-5">
+    <section id='page-content' class="py-5">
       <div class="content-main">
           {% block content %}{% endblock %}
       </div>

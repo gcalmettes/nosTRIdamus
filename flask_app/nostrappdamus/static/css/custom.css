@@ -40,8 +40,8 @@ div.transbox {
   align-items: center;
   justify-content: center;
   border-radius: 35px;
-  height: 200px;
-  width: 300px;
+  height: 320px;
+  width: 400px;
   overflow: hidden;
   border: 1px solid black;
   position: relative;
@@ -60,7 +60,7 @@ div.transbox::after {
 }
 
 .logo {
-  width: 260px;
+  width: 400px;
   z-index: 200;
 }
 
@@ -73,27 +73,6 @@ div.transbox::after {
   margin-left: 15px;
   color: #333333;
 }
-
-.bcg-img {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 250px;
-  position: relative;
-}
-
-.bcg-img::after {
-  content: "";
-  background: url('/static/img/triathlon-image-banner.jpg');
-  opacity: 0.9;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  position: absolute;
-  z-index: -10;   
-}
-
 
 
 
