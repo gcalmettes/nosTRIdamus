@@ -9,20 +9,20 @@
     <meta name="description" content="Nostridamus">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-    <script src="{{ url_for('static', filename='js/vendor/jquery-3.3.1.slim.min.js') }}"></script> 
+    <script src="{{ url_for('static', filename='js/vendor/jquery-3.4.1.min.js') }}"></script> 
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script> 
     {% block head %}
     {% endblock %}
     <style>
       #page-content{
-        min-height: 1000px;
+        min-height: 100vh;
       }
 
       #arrow-down{
         position: absolute;
         bottom: 10%;
 
-        margin-left: -25;
+        margin-left: -25px;
       }
       
     </style>
@@ -35,7 +35,7 @@
         <div class="transbox">
           <img id='logo' class='logo' src="/static/img/nostridamus-logo.png" alt="">
         </div>
-        <a id='arrow-down' href="#main"><img alt="Arrow Down Icon" src="/static/img/arrow-down.png"></a>
+        <a id='arrow-down' href="#main"><img id='arrow-down-img' alt="Arrow Down Icon" src="/static/img/arrow-down.png"></a>
             
       </div>
     </header>
@@ -84,27 +84,16 @@
        }
       });
 
-    $(function() {
-      $('a[href*=#]').on('click', function(e) {
-        e.preventDefault();
-        $('html, body').animate({ scrollTop: $($(this).attr('href')).offset().top}, 500, 'linear');
-      });
+    $(document).ready(function() {
+        $("#arrow-down").click(function(event) {
+            event.preventDefault();
+            const hash = this.hash
+            $("html, body").animate({ scrollTop: $(hash).offset().top }, "slow");
+            return false;
+        });
+
     });
 
-//     function updateScroll(){
-//         const element = document.getElementById("masthead");
-//         console.log(element)
-//         element.scrollTop = element.scrollHeight;
-//     }
-//     $('#btn-intro').on('click', function (e) {
-//       // updateScroll()
-//       // scrollToBottom()
-//       var elmnt = document.getElementById("main");
-// elmnt.scrollIntoView();
-//       console.log('clicked')
-//      //your awesome code here
-
-//     })
 
   </script>
 </html>
