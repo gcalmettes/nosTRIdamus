@@ -13,15 +13,92 @@
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script> 
     {% block head %}
     {% endblock %}
+    <style>
+      .demo a {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        z-index: 2;
+        display: inline-block;
+        -webkit-transform: translate(0, -50%);
+        transform: translate(0, -50%);
+        color: #fff;
+        font : normal 400 20px/1 'Josefin Sans', sans-serif;
+        letter-spacing: .1em;
+        text-decoration: none;
+        transition: opacity .3s;
+      }
+      .demo a:hover {
+        opacity: .5;
+      }
+      #section04 a {
+        padding-top: 60px;
+      }
+      #section04 a span {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 24px;
+        height: 24px;
+        margin-left: -12px;
+        border-left: 1px solid #fff;
+        border-bottom: 1px solid #fff;
+        -webkit-transform: rotate(-45deg);
+        transform: rotate(-45deg);
+        -webkit-animation: sdb04 2s infinite;
+        animation: sdb04 2s infinite;
+        box-sizing: border-box;
+      }
+      @-webkit-keyframes sdb04 {
+        0% {
+          -webkit-transform: rotate(-45deg) translate(0, 0);
+        }
+        20% {
+          -webkit-transform: rotate(-45deg) translate(-10px, 10px);
+        }
+        40% {
+          -webkit-transform: rotate(-45deg) translate(0, 0);
+        }
+      }
+      @keyframes sdb04 {
+        0% {
+          transform: rotate(-45deg) translate(0, 0);
+        }
+        20% {
+          transform: rotate(-45deg) translate(-10px, 10px);
+        }
+        40% {
+          transform: rotate(-45deg) translate(0, 0);
+        }
+      }
+    </style>
   </head>
   <body>
-    <div class="bcg-img">
+    <!-- <div class="bcg-img">
       <div class="transbox">
         <img class='logo' src="/static/img/nostridamus-logo.png" alt="">
       </div>
-    </div>
+    </div> -->
+    <!-- Full Page Image Header with Vertically Centered Content -->
+    <header id="masthead" class="masthead">
+      <div class="container h-100 transbox-parent demo">
+        
+            <div class="transbox">
+              <img id='logo' class='logo' src="/static/img/nostridamus-logo.png" alt="">
+            </div>
+  <!--           <div>
+              <button id="btn-intro" type="button" class="btn btn-secondary">Show me!</button>  
+            </div> -->
+            <div>
+              <a class="ct-btn-scroll ct-js-btn-scroll" href="#main"><img alt="Arrow Down Icon" src="https://www.solodev.com/assets/anchor/arrow-down.png"></a>
+            </div>
+            
+            
+
+      </div>
+    </header>
     
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav id="main" class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="/">NosTRIdamus</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -29,17 +106,20 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
               <li class="nav-item active">
-                  <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                  <a class="nav-link" href="/#main">Home <span class="sr-only">(current)</span></a>
               </li>
               <li class="nav-item">
-                  <a class="nav-link" href="/about">About</a>
+                  <a class="nav-link" href="/about#main">About</a>
               </li>
             </ul>
         </div>
     </nav>
-    <div class="content-main">
-        {% block content %}{% endblock %}
-    </div>
+    <!-- Page Content -->
+    <section class="py-5">
+      <div class="content-main">
+          {% block content %}{% endblock %}
+      </div>
+    </section>
  <!--    <div id="footer">
       {% block footer %}
       &copy; Copyright 2010 by <a href="http://domain.invalid/">you</a>.
@@ -54,12 +134,36 @@
       $(`a[href="${location.pathname}"]`).closest('li').addClass('active'); 
     });
     $(window).scroll(function(){
-       if ($(window).scrollTop() <= 250) {
+      const viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+       if ($(window).scrollTop() <= viewportHeight) {
           $(".navbar").removeClass("fixed-top");
        } else {
           $(".navbar").addClass("fixed-top");
        }
       });
+
+    $(function() {
+      $('a[href*=#]').on('click', function(e) {
+        e.preventDefault();
+        $('html, body').animate({ scrollTop: $($(this).attr('href')).offset().top}, 500, 'linear');
+      });
+    });
+
+//     function updateScroll(){
+//         const element = document.getElementById("masthead");
+//         console.log(element)
+//         element.scrollTop = element.scrollHeight;
+//     }
+//     $('#btn-intro').on('click', function (e) {
+//       // updateScroll()
+//       // scrollToBottom()
+//       var elmnt = document.getElementById("main");
+// elmnt.scrollIntoView();
+//       console.log('clicked')
+//      //your awesome code here
+
+//     })
+
   </script>
 </html>
 

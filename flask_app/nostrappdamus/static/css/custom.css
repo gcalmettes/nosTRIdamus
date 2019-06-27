@@ -1,6 +1,69 @@
 /*@import url("https://fonts.googleapis.com/css?family=Lobster:400");
 @import url("https://fonts.googleapis.com/css?family=Raleway:400,400i,700,700i");*/
 
+body, html {
+  height: 100%;
+  z-order: -300;
+}
+
+.masthead {
+  position: relative;
+  height: 100vh;
+  min-height: 500px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.masthead::after {
+  content: "";
+  background: url('/static/img/triathlon-banner-full.jpg');
+  opacity: 0.8;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  background-repeat: no-repeat;
+  z-index: -10;   
+}
+
+div.transbox-parent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+div.transbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 35px;
+  height: 200px;
+  width: 300px;
+  overflow: hidden;
+  border: 1px solid black;
+  position: relative;
+  z-index:100;
+}
+div.transbox::after {
+  content: "";
+  background-color: white;
+  opacity: 0.7;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;   
+}
+
+.logo {
+  width: 260px;
+  z-index: 200;
+}
+
 .navbar-brand {
   font-size: 20px;
 }
@@ -31,33 +94,7 @@
   z-index: -10;   
 }
 
-.logo {
-  width: 260px;
-  z-index: 200;
-}
 
-div.transbox {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 35px;
-  height: 200px;
-  width: 300px;
-  overflow: hidden;
-  border: 1px solid black;
-  position: relative;
-}
-div.transbox::after {
-  content: "";
-  background-color: white;
-  opacity: 0.7;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  position: absolute;
-  z-index: -1;   
-}
 
 
 /***************************************/
