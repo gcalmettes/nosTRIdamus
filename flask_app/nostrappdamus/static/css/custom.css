@@ -12,7 +12,6 @@ body, html {
   min-height: 500px;
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
 }
 .masthead::after {
   content: "";
@@ -23,7 +22,6 @@ body, html {
   bottom: 0;
   right: 0;
   position: absolute;
-  background-repeat: no-repeat;
   z-index: -10;   
 }
 
