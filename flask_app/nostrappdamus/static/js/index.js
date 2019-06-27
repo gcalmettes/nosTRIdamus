@@ -218,13 +218,12 @@ async function showRecommendations(){
   }).then(d => {
       const results = d.data
 
-      console.log(results)
       tabulate({ 
         id: 'result-table', 
         columns: [
           {id: 'racename', name: 'Race'},
           {id: 'country_code', name: 'Country'},
-          {id: 'similarity', name: 'Metric'}
+          {id: 'region', name: 'Region'}
         ],
         data: results.slice(1, results.length), // remove first row since it's the race itself,
         mouseOver: (row, i, array) => {
@@ -322,7 +321,7 @@ tabulate({
   columns: [
     {id: 'racename', name: 'Race'},
     {id: 'country_code', name: 'Country'},
-    {id: 'similarity', name: 'Metric'}
+    {id: 'region', name: 'Region'}
   ],
   data: []
 })
