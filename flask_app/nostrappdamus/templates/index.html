@@ -12,10 +12,10 @@
       <div class="col-md">
         
         <div class='row bottom-pad'>
-          <div class="col-6">
+          <div class="col-sm-6">
             <div class='title'> Which race did you like? </div>
           </div>
-          <div class="col-6">
+          <div class="col-sm-6">
             <div class='d-flex flex-row'>
               <div class='title flex-grow-1'> What are you looking for? </div>
               <div class="custom-control custom-switch">
@@ -27,7 +27,7 @@
         </div>
 
         <div class="row bottom-pad">
-          <div class="col-6 right-border">
+          <div class="col-sm-6 right-border">
             <div class="input-group mb-2 bottom-pad">
               <input id="race-input" type="text" class="form-control" placeholder="Which race did you liked?" aria-describedby="basic-addon2">
               <div class="input-group-append">
@@ -51,7 +51,7 @@
 
           </div>
 
-          <div class="col-6">
+          <div class="col-sm-6" style="position: relative">
             <div id='screen'></div>
 
             <div class="container-fluid slider-container no-padding">
@@ -119,15 +119,19 @@
               <h5 class="card-title" id="info-racename"></h5>
               <div class="row">
 
-                <img class="col-6" id="info-raceimage">
-                <div class="col-6">
+                <img class="col-sm-6" id="info-raceimage">
+                <div class="col-sm-6">
                   <p class="card-text" id="info-racedescription"></p> 
-                  <a href="#" class="btn btn-primary" id="info-raceurl" style="position: absolute; bottom: 0; right: 0;">Register</a>
-                  <!-- Button trigger modal -->
-                  <button type="button" id="race-moreinfobutton" class="btn btn-primary" data-toggle="modal" data-target="#moreInfo"
-                   style="position: absolute; bottom: 0; left: 0;" onclick=showMaps() disabled>
-                    More info
-                  </button>
+
+                  <div class="row">
+                    <div class="col-auto mr-auto">
+                      <button type="button" id="race-moreinfobutton" class="btn btn-primary" data-toggle="modal" data-target="#moreInfo" onclick=showMaps() disabled>More info</button>
+                    </div>
+                    <div class="col-auto">
+                      <a  href="#" class="btn btn-primary" id="info-raceurl">Register</a>
+                    </div>
+                  </div>
+                 
                 </div>
 
               </div>
