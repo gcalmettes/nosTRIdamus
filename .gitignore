@@ -113,3 +113,4 @@ ressources/
 notebooks/figs
 
 update_aws.sh
+connect_aws.sh
