@@ -33,16 +33,21 @@ function slider_snap({
   const svg = container.selectAll('svg')
     .data([null])
     .join(enter => enter
-      .append('svg')
-      .attr('width', width)
-      .attr('height', height)
+        .append('svg')
+          .attr('width', width)
+          .attr('height', height),
+      update => update
+          .attr('width', width)
+          .attr('height', height)
     )
   const g = svg.selectAll('.g-slider')
     .data([null])
     .join(enter => enter
-      .append('g')
-      .attr('class', 'g-slider')
-      .attr('transform', `translate(${margin.left}, ${margin.top})`)
+        .append('g')
+          .attr('class', 'g-slider')
+          .attr('transform', `translate(${margin.left}, ${margin.top})`),
+      update => update
+          .attr('transform', `translate(${margin.left}, ${margin.top})`)
     )
 
   // draw background lines
@@ -120,8 +125,9 @@ function slider_snap({
   const gBrush = g.selectAll('.brush')
     .data([null])
     .join(enter => enter.append("g")
-      .attr("class", "brush")
-      .call(brush)
+        .attr("class", "brush")
+        .call(brush),
+      update => update.call(brush)
     )
 
   // add brush handles (from https://bl.ocks.org/Fil/2d43867ba1f36a05459c7113c7f6f98a)
