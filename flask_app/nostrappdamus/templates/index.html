@@ -5,29 +5,18 @@
 {% endblock %}
 {% block title %}Welcome{% endblock %}
 {% block content %}
-  <h1>Hey there!</h1>
-  <h4>Want to know what your next race will be? You're at the right place!</h4>
+  <div class="container-fluid">
+    <h1>Hey there!</h1>
+    <h4>Want to know what your next race will be? You're at the right place!</h4>
+  </div>
   <div class="container-fluid top-pad">
     <div class="row ">
       <div class="col-lg-6">
         
-        <div class='row bottom-pad'>
-          <div class="col-md-6">
-            <div class='title'> Which race did you like? </div>
-          </div>
-          <div class="col-md-6">
-            <div class='d-flex flex-row'>
-              <div class='title flex-grow-1'> What are you looking for? </div>
-              <div class="custom-control custom-switch">
-                <input type="checkbox" class="custom-control-input" id="switchControls">
-                <label class="custom-control-label" for="switchControls"></label>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div class="row bottom-pad">
+
           <div class="col-md-6 right-border">
+            <div class='title bottom-pad'> Which race did you like? </div>
             <div class="input-group mb-2 bottom-pad">
               <input id="race-input" type="text" class="form-control" placeholder="Which race did you liked?" aria-describedby="basic-addon2">
               <div class="input-group-append">
@@ -51,47 +40,59 @@
 
           </div>
 
-          <div class="col-md-6" style="position: relative">
-            <div id='screen'></div>
+          <div class="col-md-6">
 
-            <div class="container-fluid slider-container no-padding">
-              <span id="slider-racetype-label">Experience sought</span>
+            <div class='d-flex flex-row bottom-pad'>
+              <div class='title flex-grow-1'> What are you looking for? </div>
+              <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="switchControls">
+                <label class="custom-control-label" for="switchControls"></label>
+              </div>
+            </div>
+
+            <div style="position: relative">
               
-              <div class='d-flex flex-row justify-content-center bottom-pad-small'>
-                <input id="slider-raceexperience" data-slider-id="slider-raceexperience" type="text"
-                  data-provide="slider"
-                  data-slider-ticks="[0, 1, 2]"
-                  data-slider-ticks-labels='["Vacation", "Neutral", "Performance"]'
-                  data-slider-min="0"
-                  data-slider-max="2"
-                  data-slider-step="1"
-                  data-slider-value="1"
-                  data-slider-tooltip="hide" />
-              
-              </div>
+              <div id='screen'></div>
 
-              <span id="slider-racetype-label">Race difficulty</span>
-              <div class="d-flex flex-row justify-content-center bottom-pad">
-                <div class="d-flex flex-grow-1 justify-content-center">
-                  <span class="oi oi-thumb-up up-color" aria-hidden="true"></span>  
+              <div class="container-fluid slider-container no-padding">
+                <span id="slider-racetype-label">Experience sought</span>
+                
+                <div class='d-flex flex-row justify-content-center bottom-pad-small'>
+                  <input id="slider-raceexperience" data-slider-id="slider-raceexperience" type="text"
+                    data-provide="slider"
+                    data-slider-ticks="[0, 1, 2]"
+                    data-slider-ticks-labels='["Vacation", "Neutral", "Performance"]'
+                    data-slider-min="0"
+                    data-slider-max="2"
+                    data-slider-step="1"
+                    data-slider-value="1"
+                    data-slider-tooltip="hide" />
+                
                 </div>
-                <input class="flex-grow-1" id="slider-racedifficulty" data-slider-id="slider-racedifficulty" type="text"/>
-                <div class="d-flex flex-grow-1 justify-content-center">
-                  <span class="oi oi-fire fire-color" aria-hidden="true"></span>  
-                </div>
-              </div>
 
-              <span id="slider-racetype-label">Race size</span>
-              <div class="d-flex flex-row justify-content-center">
-                <div class="d-flex flex-grow-1 justify-content-center">
-                  <span class="oi oi-person grey-color" aria-hidden="true"></span>  
+                <span id="slider-racetype-label">Race difficulty</span>
+                <div class="d-flex flex-row justify-content-center bottom-pad">
+                  <div class="d-flex flex-grow-1 justify-content-center">
+                    <span class="oi oi-thumb-up up-color" aria-hidden="true"></span>  
+                  </div>
+                  <input class="flex-grow-1" id="slider-racedifficulty" data-slider-id="slider-racedifficulty" type="text"/>
+                  <div class="d-flex flex-grow-1 justify-content-center">
+                    <span class="oi oi-fire fire-color" aria-hidden="true"></span>  
+                  </div>
                 </div>
-                <input class="flex-grow-1" id="slider-racesize" data-slider-id="slider-racesize" type="text"/>
-                <div class="d-flex flex-grow-1 justify-content-center">
-                  <span class="oi oi-people grey-color" aria-hidden="true"></span>  
-                </div>
-              </div>
 
+                <span id="slider-racetype-label">Race size</span>
+                <div class="d-flex flex-row justify-content-center">
+                  <div class="d-flex flex-grow-1 justify-content-center">
+                    <span class="oi oi-person grey-color" aria-hidden="true"></span>  
+                  </div>
+                  <input class="flex-grow-1" id="slider-racesize" data-slider-id="slider-racesize" type="text"/>
+                  <div class="d-flex flex-grow-1 justify-content-center">
+                    <span class="oi oi-people grey-color" aria-hidden="true"></span>  
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
