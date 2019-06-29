@@ -8,14 +8,18 @@
     <title>{% block title %}{% endblock %} - NosTRIdamus</title>
     <meta name="description" content="Nostridamus">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-slider.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/open-iconic-bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
     <script src="{{ url_for('static', filename='js/vendor/jquery-3.4.1.min.js') }}"></script> 
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script> 
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     {% block head %}
     {% endblock %}
     <style>
       #page-content{
-        min-height: 100vh;
+        min-height: calc(100vh - var(--main-navbar-height) - var(--main-footer-height)); /*navbar 50px, footer 100px*/
       }
       #arrow-down{
         position: absolute;
@@ -58,13 +62,41 @@
           {% block content %}{% endblock %}
       </div>
     </section>
- <!--    <div id="footer">
+
+    <footer class="footer-gc bg-dark">
       {% block footer %}
-      &copy; Copyright 2010 by <a href="http://domain.invalid/">you</a>.
+      <div class="footer-container container">
+        <div class='footer-p'>
+          NosTRIdamus was developed by Guillaume Calmettes as an Insight Data Science Fellow.
+        </div>
+        <div class='d-flex'>
+          <a id="gc-website" role='button' class="btn btn-secondary" href="http://www.gcalmettes.ml/" style="color: black;" target="_blank"><span class="oi oi-globe black" aria-hidden="true"></span><span class='margined black weight-small'>website</span></a>
+          <span class="margined"><a class="github-button" href="https://github.com/gcalmettes" aria-label="@gcalmettes on GitHub">Github @gcalmettes</a></span>
+          <span class="margined"><a class="twitter-follow-button" href="https://twitter.com/gcalmettes" data-show-count="false">Follow @gcalmettes</a></span>
+          <span class="margined"><a href="https://www.linkedin.com/in/guillaume-calmettes" id="linkedin" target="_blank">in</a></span>
+        </div>
+      </div>
       {% endblock %}
-    </div> -->
-  </body>   
+    </footer>
+
+  </body> 
+
   <script src="{{ url_for('static', filename='js/vendor/bootstrap.bundle.min.js') }}"></script>
+  <!-- vendors -->
+  <script src="{{ url_for('static', filename='js/vendor/d3.min.js') }}"></script> 
+  <script src="{{ url_for('static', filename='js/vendor/topojson.min.js') }}"></script>  
+  <script src="{{ url_for('static', filename='js/vendor/versor.min.js') }}"></script> 
+  <script src="{{ url_for('static', filename='js/vendor/d3-inertia.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/vendor/holder.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/vendor/bootstrap-slider.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/vendor/skycons.js') }}"></script>
+
+  <!-- page specifics Index -->
+  <script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/globe.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/slider-snap.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
   <script>
     // change hilghlight on tab
     $(document).ready(() => {

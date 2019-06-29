@@ -1,13 +1,11 @@
 {% extends "layout.html" %}
 {% block head %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-slider.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/open-iconic-bootstrap.min.css') }}">
 {% endblock %}
 {% block title %}Welcome{% endblock %}
 {% block content %}
   <div class="container-fluid">
     <h1>Hey there!</h1>
-    <h4>Want to know what your next race will be? You're at the right place!</h4>
+    <h4>Want to know what your next Ironman race will be? You're at the right place!</h4>
   </div>
   <div class="container-fluid top-pad">
     <div class="row ">
@@ -187,21 +185,5 @@
     </div>
 
   </div>
-  
-  <!-- vendors -->
-  <script src="{{ url_for('static', filename='js/vendor/d3.min.js') }}"></script> 
-  <script src="{{ url_for('static', filename='js/vendor/topojson.min.js') }}"></script>  
-  <script src="{{ url_for('static', filename='js/vendor/versor.min.js') }}"></script> 
-  <script src="{{ url_for('static', filename='js/vendor/d3-inertia.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/vendor/holder.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/vendor/bootstrap-slider.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/vendor/skycons.js') }}"></script>
-
-  <!-- page specifics -->
-  <script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/globe.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/slider-snap.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/index.js') }}"></script>
-  
 
 {% endblock %}
