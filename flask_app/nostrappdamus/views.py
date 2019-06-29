@@ -5,6 +5,23 @@ from .model.predict import get_recommendations
 from .model.get_model import get_items, get_items_map
 from nostrappdamus import app
 
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# create a file handler
+handler = logging.FileHandler('activity.log')
+handler.setLevel(logging.INFO)
+
+# create a logging format
+# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+# add the handlers to the logger
+logger.addHandler(handler)
+
 
 @app.route('/')
 @app.route('/index')
@@ -20,15 +37,21 @@ def about():
 def get_recommendation():
 
     args = request.json
-    race = args.get('race')
-    filterBy = args.get('filterBy')
-    model = args.get('model')
-    months_range = args.get('months_range')
-
     # experience type: 0 -> vacation, 1 -> enjoy, 2 -> performance
     # difficulty: 1, 2, 3, 4, 5
     # size: 1, 2, 3, 4, 5
     options = args.get('options')
+
+    # write to log
+    IP1 = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
+    IP2 = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ["REMOTE_ADDR"]) 
+    logger.info(f"({IP1}, {IP2}) -- [{args.get('model')}, {args.get('race')}, {args.get('filterBy')}, {args.get('months_range')}, {options.get('raceExperience')}, {options.get('raceDifficulty')}, {options.get('raceSize')}]")
+
+    # process request
+    race = args.get('race')
+    filterBy = args.get('filterBy')
+    model = args.get('model')
+    months_range = args.get('months_range')
 
     if race:
         if filterBy == 'all':
