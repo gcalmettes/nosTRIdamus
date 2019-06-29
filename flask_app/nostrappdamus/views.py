@@ -43,9 +43,9 @@ def get_recommendation():
     options = args.get('options')
 
     # write to log
-    IP1 = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
-    IP2 = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ["REMOTE_ADDR"]) 
-    logger.info(f"({IP1}, {IP2}) -- [{args.get('model')}, {args.get('race')}, {args.get('filterBy')}, {args.get('months_range')}, {options.get('raceExperience')}, {options.get('raceDifficulty')}, {options.get('raceSize')}]")
+    IP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
+    # IP2 = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ["REMOTE_ADDR"]) 
+    logger.info(f"({IP}) -- [{args.get('model')}, {args.get('race')}, {args.get('filterBy')}, {args.get('months_range')}, {options.get('raceExperience')}, {options.get('raceDifficulty')}, {options.get('raceSize')}]")
 
     # process request
     race = args.get('race')
@@ -95,6 +95,10 @@ def get_races():
 @app.route('/racemap', methods=['POST'])
 def get_race_maps():
     race = request.json.get('race')
+
+    # write to log
+    IP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
+    logger.info(f"({IP}) -- details for {race}")
 
     maps_data = get_items_map(race or 'france.70.3')
 
