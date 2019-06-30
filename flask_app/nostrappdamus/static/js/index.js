@@ -375,12 +375,17 @@ const sliderRaceSize = new Slider("#slider-racesize", {
 });
 
 const screenDiv = document.getElementById('screen')
+const switchLabel = document.getElementById('custom-switch-label')
 
 document.getElementById('switchControls').addEventListener('change', function(e) {
   isAdvancedChecked = e.target.checked
   if (e.target.checked) {
     screenDiv.style.display='none'
+    switchLabel.textContent = 'ON'
+    switchLabel.style = 'color: #348ABD;'
   } else {
     screenDiv.style.display='block'
+    switchLabel.textContent = 'OFF'
+    switchLabel.style = 'color: #E24A33;'
   }
 })

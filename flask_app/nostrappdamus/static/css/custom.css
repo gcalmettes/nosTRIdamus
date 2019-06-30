@@ -166,7 +166,7 @@ div.transbox::after {
 }
 
 .btn_colored.active {
-    background-color: #E24A33 !important;
+  background-color: #E24A33 !important;
 }
 
 .no-padding {
@@ -177,6 +177,7 @@ div.transbox::after {
   color: black;
   font-weight: bold;
   text-decoration: underline;
+  font-style: italic;
 }
 
 .bottom-pad {
@@ -262,6 +263,11 @@ div.transbox::after {
   color: #E24A33;
 }
 
+#custom-switch-label {
+  padding-top: 2px;
+  width: 10px;
+  color: #E24A33;
+}
 
 /***************************************/
 /**************  GLobe   ***************/
