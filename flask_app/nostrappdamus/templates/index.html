@@ -19,9 +19,15 @@
               Enter a race that you've done and get recommendations based on what other people who also did this race have liked. 
             </p>
             <div class="input-group mb-2 bottom-pad">
+              <div id="empty-field-alert" class="alert alert-dismissible fade show" role="alert">
+                <button type="button" class="close" onclick="$('#empty-field-alert').hide()" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                 <span id='empty-field-alert-text'></span>
+              </div>
               <input id="race-input" type="text" class="form-control" placeholder="Which race did you liked?" aria-describedby="basic-addon2">
               <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" onClick=showRecommendations()>Submit</button>
+                <button id="get-recommendations-button" class="btn btn-outline-secondary" type="button">Submit</button>
               </div>
             </div>
             

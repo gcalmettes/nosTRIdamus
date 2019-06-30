@@ -190,11 +190,36 @@ const getKey = (obj,val) => Object.keys(obj).find(key => obj[key] === val)
 /**** GET RECOMMENDATIONS ***/
 /****************************/
 
+document.getElementById("get-recommendations-button")
+  .addEventListener('click', () => {
+    // Get the chosen race and trim it
+    const pickedRace = document.getElementById('race-input').value.trim()
+    if (pickedRace) {
+      if (raceslist[pickedRace]) {
+        showRecommendations(pickedRace)
+      } else {
+        $('#empty-field-alert-text').text("Sorry we didn't find that race.")
+        $('#empty-field-alert').css('display', 'block')
+        $('#empty-field-alert').toggleClass('alert-warning', false)
+        $('#empty-field-alert').toggleClass('warning-race', false);
+        $('#empty-field-alert').toggleClass('alert-danger', true)
+        $('#empty-field-alert').toggleClass('danger-race', true);
+
+      }
+
+    } else {
+      $('#empty-field-alert-text').text('Please fill in a race!')
+      $('#empty-field-alert').css('display', 'block')
+      $('#empty-field-alert').toggleClass('alert-danger', false)
+      $('#empty-field-alert').toggleClass('danger-race', false);
+      $('#empty-field-alert').toggleClass('alert-warning', true)
+      $('#empty-field-alert').toggleClass('warning-race', true);
+    }
+  })
+
 let isAdvancedChecked = false
 
-async function showRecommendations(){
-
-  const pickedRace = document.getElementById('race-input').value
+async function showRecommendations(pickedRace){
   const filterRace = document.querySelector('input[name="options"]:checked').value
   const raceExperience = document.querySelector('input[data-slider-id=slider-raceexperience]').value
   const raceDifficulty = document.querySelector('input[data-slider-id=slider-racedifficulty]').value
@@ -256,22 +281,23 @@ async function showRecommendations(){
       })
 
       return results
-    })
+  })
 
-    const newLocations = locations.map((d, i) => makePoint(d, i==0, false)).reverse()
-    shared.resetInfo() 
-    shared.setLocations({ cities: newLocations })
-    shared.drawLocations()
-    // the last location is the reference point
-    const [lon, lat] = newLocations[newLocations.length-1].coordinates
-    shared.centerGlobeTo({lat: lat, lon: lon})
-    
-    // preload images
-    const imgs = {}
-    for (const loc of newLocations ){
-      imgs[loc.race] = new Image()
-      imgs[loc.race].src = loc.img
-    }
+  const newLocations = locations.map((d, i) => makePoint(d, i==0, false)).reverse()
+  shared.resetInfo() 
+  shared.setLocations({ cities: newLocations })
+  shared.drawLocations()
+  // the last location is the reference point
+  const [lon, lat] = newLocations[newLocations.length-1].coordinates
+  shared.centerGlobeTo({lat: lat, lon: lon})
+  
+  // preload images
+  const imgs = {}
+  for (const loc of newLocations ){
+    imgs[loc.race] = new Image()
+    imgs[loc.race].src = loc.img
+  }
+  
 }
 
 

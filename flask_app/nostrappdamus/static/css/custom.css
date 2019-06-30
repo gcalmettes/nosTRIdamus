@@ -204,6 +204,52 @@ div.transbox::after {
 .page-content-padding-top {
   margin-top: 50px;
 }
+
+/* alert empty field race */
+#empty-field-alert{
+  display: none;
+  position: absolute;
+  z-index: 30;
+  top: -50px;
+  border: #000 solid 1px;
+}
+#empty-field-alert.warning-race:after {
+   content: "";
+   position: absolute;
+   top: 100%;
+   left: 50%;
+   margin-left: -10px;
+   border-style: solid;
+   border-width: 12px 12px 0;
+   border-color: #fef1c2 transparent ;
+   z-index: 1
+}
+#empty-field-alert.danger-race:after {
+   content: "";
+   position: absolute;
+   top: 100%;
+   left: 50%;
+   margin-left: -10px;
+   border-style: solid;
+   border-width: 12px 12px 0;
+   border-color: #f6ccd1 transparent ;
+   z-index: 1
+}
+
+#empty-field-alert:before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -11px;
+  border-style: solid;
+  border-width: 13px 13px 0;
+  border-color: #000 transparent;
+  display: block;
+  width: 0;
+  z-index: 0;
+}
+
 /***************************************/
 /***************  Icons  ***************/
 /***************************************/
