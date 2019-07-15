@@ -38,6 +38,10 @@ class ALSRecommender(BaseRecommender):
         df_order = df_distances.merge(self.items_info, left_on='race',
                                       right_on='race', how='left')
         if filterByField:
+            if df_order.loc[0, filterByField] != valueToMatch:
+                # ensure the initial target race will be present
+                # even if it doesn't fit the filter
+                df_order.loc[0, filterByField] = valueToMatch
             df_order = df_order.loc[df_order[filterByField] == valueToMatch]
 
         # filter by months into months range
@@ -71,6 +75,10 @@ class KNNRecommender(BaseRecommender):
         df_order = df_distances.merge(self.items_info, left_on='race',
                                       right_on='race', how='left')
         if filterByField:
+            if df_order.loc[0, filterByField] != valueToMatch:
+                # ensure the initial target race will be present
+                # even if it doesn't fit the filter
+                df_order.loc[0, filterByField] = valueToMatch
             df_order = df_order.loc[df_order[filterByField] == valueToMatch]
 
         # filter by months into months range
