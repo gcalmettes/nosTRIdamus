@@ -119,6 +119,10 @@ function slider_snap({
 
       // reflect selection in global variable
       shared['months_range'] = d1
+
+      // update recommendations
+      const pickedRace = document.getElementById('race-input').value.trim()
+      showRecommendations(pickedRace)
     })
 
   // append brush to g

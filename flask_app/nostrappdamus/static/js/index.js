@@ -190,41 +190,90 @@ const getKey = (obj,val) => Object.keys(obj).find(key => obj[key] === val)
 /**** GET RECOMMENDATIONS ***/
 /****************************/
 
+// submit button
 document.getElementById("get-recommendations-button")
   .addEventListener('click', () => {
     // Get the chosen race and trim it
     const pickedRace = document.getElementById('race-input').value.trim()
-    if (pickedRace) {
-      if (raceslist[pickedRace]) {
-        showRecommendations(pickedRace)
-      } else {
-        $('#empty-field-alert-text').text("Sorry we didn't find that race.")
-        $('#empty-field-alert').css('display', 'block')
-        $('#empty-field-alert').toggleClass('alert-warning', false)
-        $('#empty-field-alert').toggleClass('warning-race', false);
-        $('#empty-field-alert').toggleClass('alert-danger', true)
-        $('#empty-field-alert').toggleClass('danger-race', true);
-
-      }
-
-    } else {
-      $('#empty-field-alert-text').text('Please fill in a race!')
-      $('#empty-field-alert').css('display', 'block')
-      $('#empty-field-alert').toggleClass('alert-danger', false)
-      $('#empty-field-alert').toggleClass('danger-race', false);
-      $('#empty-field-alert').toggleClass('alert-warning', true)
-      $('#empty-field-alert').toggleClass('warning-race', true);
-    }
+    showRecommendations(pickedRace)
   })
+
+// change in filter options (all / full / half)
+$('#races-filter').on('change', e => {
+  const pickedRace = document.getElementById('race-input').value.trim()
+  showRecommendations(pickedRace)
+});
+
+// race experience
+$('input[data-slider-id=slider-raceexperience]').on('change', e => {
+  const pickedRace = document.getElementById('race-input').value.trim()
+  showRecommendations(pickedRace)
+})
+// race difficulty
+$('input[data-slider-id=slider-racedifficulty]').on('change', e => {
+  const pickedRace = document.getElementById('race-input').value.trim()
+  showRecommendations(pickedRace)
+})
+// race size
+$('input[data-slider-id=slider-racesize]').on('change', e => {
+  const pickedRace = document.getElementById('race-input').value.trim()
+  showRecommendations(pickedRace)
+})
+
+// race input
+$('#race-input').keypress(event => {
+    const keycode = (event.keyCode ? event.keyCode : event.which);
+    if(keycode == '13'){
+      const pickedRace = document.getElementById('race-input').value.trim()
+      showRecommendations(pickedRace)
+    }
+});
+
+
 
 let isAdvancedChecked = false
 
-async function showRecommendations(pickedRace){
+function checkRaceValidity(pickedRace){
+  if (pickedRace) {
+    if (raceslist[pickedRace]) {
+      return true
+    } else {
+      $('#empty-field-alert-text').text("Sorry we didn't find that race.")
+      $('#empty-field-alert').css('display', 'block')
+      $('#empty-field-alert').toggleClass('alert-warning', false)
+      $('#empty-field-alert').toggleClass('warning-race', false);
+      $('#empty-field-alert').toggleClass('alert-danger', true)
+      $('#empty-field-alert').toggleClass('danger-race', true);
+      return false
+    }
+  } else {
+    $('#empty-field-alert-text').text('Please fill in a race!')
+    $('#empty-field-alert').css('display', 'block')
+    $('#empty-field-alert').toggleClass('alert-danger', false)
+    $('#empty-field-alert').toggleClass('danger-race', false);
+    $('#empty-field-alert').toggleClass('alert-warning', true)
+    $('#empty-field-alert').toggleClass('warning-race', true);
+    return false
+  }
+}
+
+function getOptionsStatus(){
   const filterRace = document.querySelector('input[name="options"]:checked').value
   const raceExperience = document.querySelector('input[data-slider-id=slider-raceexperience]').value
   const raceDifficulty = document.querySelector('input[data-slider-id=slider-racedifficulty]').value
   const raceSize = document.querySelector('input[data-slider-id=slider-racesize]').value
   const months_range = shared['months_range']
+  return {filterRace, raceExperience, raceDifficulty, raceSize, months_range}
+}
+
+async function showRecommendations(pickedRace){
+  const isValidInput = checkRaceValidity(pickedRace)
+
+  // don't go ahead if race input is not valid
+  if (!isValidInput) return
+  
+  const {filterRace, raceExperience, raceDifficulty, 
+         raceSize, months_range} = getOptionsStatus()
 
   const locations = await sendRequest({ 
     url: '/recommend', 
@@ -414,4 +463,6 @@ document.getElementById('switchControls').addEventListener('change', function(e)
     switchLabel.textContent = 'OFF'
     switchLabel.style = 'color: #E24A33;'
   }
+  const pickedRace = document.getElementById('race-input').value.trim()
+  showRecommendations(pickedRace)
 })
