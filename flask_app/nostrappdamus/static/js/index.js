@@ -220,6 +220,15 @@ $('input[data-slider-id=slider-racesize]').on('change', e => {
   showRecommendations(pickedRace)
 })
 
+// race input
+$('#race-input').keypress(event => {
+    const keycode = (event.keyCode ? event.keyCode : event.which);
+    if(keycode == '13'){
+      const pickedRace = document.getElementById('race-input').value.trim()
+      showRecommendations(pickedRace)
+    }
+});
+
 
 
 let isAdvancedChecked = false
