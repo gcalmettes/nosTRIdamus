@@ -151,3 +151,19 @@ class GetLatestDateAndLocation(BaseEstimator, TransformerMixin):
                 .transpose(),
             X.loc[:, [col for col in X.columns if col not in ['date', 'city', 'month']]]
         ], axis=1)
+
+
+class SelectColumns(BaseEstimator, TransformerMixin):
+    """
+    Select columns of interest
+    """
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        columns_to_keep = [
+            'race', 'racename', 'date', 'month', 'imlink', 'city', 'image_url',
+            'logo_url', 'region', 'images', 'country_code'
+        ]
+        return X.loc[:, columns_to_keep]
