@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
-
+from load_ext import RacesDescription
 
 class KeepActiveRacesOnly(BaseEstimator, TransformerMixin):
     """
@@ -136,14 +136,7 @@ class GetLatestDateAndLocation(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         # make sure to have latest date and location from latest download
-        descriptions = {}
-        with open("./../data/races/races-description.jl") as f:
-            for line in f.readlines():
-                data = json.loads(line.strip())
-                if (data.get('id', "TBD") != "TBD"):
-                    descriptions[data['id']] = data
-                else:
-                    descriptions[f"TBD_{data['name']}"] = data
+        descriptions = RacesDescription().load()
 
         return pd.concat([
             X.transpose()
