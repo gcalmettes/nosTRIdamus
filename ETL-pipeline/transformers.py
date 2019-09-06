@@ -127,6 +127,7 @@ class GetLatestDateAndLocation(BaseEstimator, TransformerMixin):
             new_date = f"TBD {month:02}-{new_date.split('TBD ')[1]}"
         return pd.Series({
             'date': new_date,
+            'month': int(new_date.split('-')[1]) if type(new_date) == str and 'TBD' not in new_date and new_date != '' else month,
             'city': to_check['location'] if to_check is not False else city
         })
 
@@ -148,5 +149,5 @@ class GetLatestDateAndLocation(BaseEstimator, TransformerMixin):
             X.transpose()
                 .apply(lambda x: self.getDateAndLocation(x['race'], x['date'], x['month'], x['city'], descriptions))
                 .transpose(),
-            X.loc[:, [col for col in X.columns if col not in ['date', 'city']]]
+            X.loc[:, [col for col in X.columns if col not in ['date', 'city', 'month']]]
         ], axis=1)
