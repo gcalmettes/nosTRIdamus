@@ -3,6 +3,16 @@ from dataclasses import dataclass
 
 
 @dataclass
+class RacesGeoInfo:
+    url = "./../data/geo-data/races_geo_info.json"
+
+    def load(self):
+        with open(self.url, 'r') as f:
+            races_geo_info = json.loads(f.read())
+        return races_geo_info
+
+
+@dataclass
 class RacesDescription:
     url = "./../data/races/races-description.jl"
 

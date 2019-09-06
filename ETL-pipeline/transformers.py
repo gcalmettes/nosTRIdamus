@@ -1,7 +1,7 @@
-import json
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
-from load_ext import RacesDescription
+from load_ext import RacesGeoInfo, RacesDescription
+
 
 class KeepActiveRacesOnly(BaseEstimator, TransformerMixin):
     """
@@ -58,8 +58,7 @@ class AddCountryCode(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        with open("./../data/geo-data/races_geo_info.json", 'r') as f:
-            races_geo_info = json.loads(f.read())
+        races_geo_info = RacesGeoInfo().load()
 
         country_codes = (
             X['race']
