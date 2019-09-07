@@ -137,38 +137,6 @@ class GetLatestDateAndLocation(BaseEstimator, TransformerMixin):
         ], axis=1)
 
 
-class SelectColumns(BaseEstimator, TransformerMixin):
-    """
-    Select columns of interest
-    """
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        columns_to_keep = [
-            'race', 'racename', 'date', 'month', 'imlink', 'city', 'image_url',
-            'logo_url', 'region', 'images', 'country_code', 'lat', 'lon',
-            'n_years_existance', 'entrants_count_avg', 'run_sinusoity',
-            'run_distance', 'run_elevationGain', 'run_score', 'bike_sinusoity',
-            'bike_distance', 'bike_elevationGain', 'bike_score', 'swim_distance',
-            'swim_type'
-            # 'ironkids_race', 'attractivity_score',
-            # 'perc_entrants_from_country', 'perc_entrants_from_region',
-            # 'perc_female', 'wc_slots', 'distance_to_nearest_shoreline',
-            # 'distance_to_nearest_airport',
-            # 'distance_to_nearest_airport_international', 'n_metropolitan_cities',
-            # 'n_hotels', 'n_restaurants', 'n_entertainment', 'n_nightlife',
-            # 'n_shops', 'n_bike_shops', 'n_pools', 'n_athletic_centers',
-            # 'n_fitness_centers', 'weather_icon', 'weather_summary',
-            # 'temperatureMin', 'temperatureMax', 'apparentTemperatureMin',
-            # 'apparentTemperatureMax', 'swim_min', 'swim_mean', 'swim_max',
-            # 'bike_min', 'bike_mean', 'bike_max', 'run_min', 'run_mean', 'run_max',
-            # 'run_elevation_map', 'bike_elevation_map', 'is_70.3'
-        ]
-        return X.loc[:, columns_to_keep]
-
-
 class ComputeRaceHistoryStats(BaseEstimator, TransformerMixin):
     """
     Some statistics based on past race results
@@ -284,3 +252,35 @@ class ComputeRaceRouteFeatures(BaseEstimator, TransformerMixin):
              .apply(lambda x: self.extract_geo_info(x['map'], x['info']))
              .transpose()
         ], axis=1)
+
+
+class SelectColumns(BaseEstimator, TransformerMixin):
+    """
+    Select columns of interest
+    """
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        columns_to_keep = [
+            'race', 'racename', 'date', 'month', 'imlink', 'city', 'image_url',
+            'logo_url', 'region', 'images', 'country_code', 'lat', 'lon',
+            'n_years_existance', 'entrants_count_avg', 'run_sinusoity',
+            'run_distance', 'run_elevationGain', 'run_score', 'bike_sinusoity',
+            'bike_distance', 'bike_elevationGain', 'bike_score', 'swim_distance',
+            'swim_type'
+            # 'ironkids_race', 'attractivity_score',
+            # 'perc_entrants_from_country', 'perc_entrants_from_region',
+            # 'perc_female', 'wc_slots', 'distance_to_nearest_shoreline',
+            # 'distance_to_nearest_airport',
+            # 'distance_to_nearest_airport_international', 'n_metropolitan_cities',
+            # 'n_hotels', 'n_restaurants', 'n_entertainment', 'n_nightlife',
+            # 'n_shops', 'n_bike_shops', 'n_pools', 'n_athletic_centers',
+            # 'n_fitness_centers', 'weather_icon', 'weather_summary',
+            # 'temperatureMin', 'temperatureMax', 'apparentTemperatureMin',
+            # 'apparentTemperatureMax', 'swim_min', 'swim_mean', 'swim_max',
+            # 'bike_min', 'bike_mean', 'bike_max', 'run_min', 'run_mean', 'run_max',
+            # 'run_elevation_map', 'bike_elevation_map', 'is_70.3'
+        ]
+        return X.loc[:, columns_to_keep]
