@@ -67,3 +67,16 @@ class RacesEntrantsCount:
                         "entrants": data['count']
                     }]
         return races_entrants_count
+
+
+@dataclass
+class IronKidsRaces:
+    url = "./../data/races/ironKids-races.json"
+
+    def load(self):
+        ironKids_races = {}
+        with open(self.url) as f:
+            for line in f.readlines():
+                data = json.loads(line.strip())
+                ironKids_races[data['name'].strip().replace("IRONKIDS ", "")] = data
+        return ironKids_races
