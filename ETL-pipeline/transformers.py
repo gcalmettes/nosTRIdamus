@@ -1,6 +1,7 @@
+import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
-from load_ext import RacesGeoInfo, RacesDescription
+from load_ext import RacesGeoInfo, RacesDescription, MissingRegions, RacesEntrantsCount
 
 
 class KeepActiveRacesOnly(BaseEstimator, TransformerMixin):
@@ -90,18 +91,8 @@ class FillMissingRegions(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        missing_regions = {
-            'challengeroth': 'Europe',
-            'edinburgh70.3': 'Europe',
-            'longhorn70.3': 'North America',
-            'loscabos': 'North America',
-            'miami70.3': 'North America',
-            'pula70.3': "Europe",
-            'raleigh70.3': 'North America',
-            'st.george': 'North America',
-            'syracuse70.3': 'North America',
-            'thailand70.3': "Asia"
-        }
+        missing_regions = MissingRegions().load()
+
         return pd.concat([
             X.loc[:, [col for col in X.columns if col != 'region']],
             X[['race', 'region']].transpose().apply(
@@ -159,3 +150,45 @@ class SelectColumns(BaseEstimator, TransformerMixin):
             'logo_url', 'region', 'images', 'country_code'
         ]
         return X.loc[:, columns_to_keep]
+
+
+class ComputeRaceHistoryStats(BaseEstimator, TransformerMixin):
+    """
+    Some statistics based on past race results
+    """
+    year_threshold = 2014
+
+    def get_race_participation(self, race, races_entrants_count):
+        mean_count = 0
+        n_years_existance = 0
+        race_participation = races_entrants_count.get(race, 0)
+        if not race_participation:
+            # try with lowercase
+            race_participation = races_entrants_count.get(race.lower(), 0)
+        if race_participation:
+            counts = np.array([y['entrants'] if y['year'] > self.year_threshold
+                               else np.nan for y in race_participation])
+            mean_count = np.nanmean(counts)
+            n_years_existance = len(race_participation)
+
+        # nan if no results
+        mean_count = np.nan if not mean_count else mean_count
+        n_years_existance = np.nan if not n_years_existance else n_years_existance
+
+        return pd.Series({
+            'n_years_existance': n_years_existance,
+            'entrants_count_avg': mean_count
+        })
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        races_entrants_count = RacesEntrantsCount().load()
+
+        return pd.concat([
+            X,
+            X.transpose()
+             .apply(lambda x: self.get_race_participation(x['race'], races_entrants_count))
+             .transpose()
+        ], axis=1)
