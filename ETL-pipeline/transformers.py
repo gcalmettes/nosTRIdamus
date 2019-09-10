@@ -1,8 +1,11 @@
 import json
+import re
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
-from load_ext import RacesGeoInfo, RacesDescription, MissingRegions, RacesEntrantsCount
+from load_ext import RacesGeoInfo, RacesDescription, MissingRegions,\
+                     RacesEntrantsCount, IronKidsRaces, AllRaces,\
+                     IronKidsRacesManualMatched, ResultsDf
 
 
 class KeepActiveRacesOnly(BaseEstimator, TransformerMixin):
@@ -254,6 +257,89 @@ class ComputeRaceRouteFeatures(BaseEstimator, TransformerMixin):
         ], axis=1)
 
 
+class HasIronKids(BaseEstimator, TransformerMixin):
+    """
+    Does the race have ironKids race
+    """
+
+    @staticmethod
+    def getIronKidsRaces():
+        return IronKidsRaces().load()
+
+    @staticmethod
+    def getAllRaces():
+        return AllRaces().load()
+
+    @staticmethod
+    def getIronKidsRacesManualMatched():
+        return IronKidsRacesManualMatched().load()
+
+    def getMatchedIronKidsRaces(self):
+        ironKids_races = self.getIronKidsRaces()
+        all_races = self.getAllRaces()
+
+        not_matched = []
+        for kidsrace in ironKids_races:
+            # try to find a match in all_races dataset
+            url = ironKids_races[kidsrace]['url']
+            match = 0
+            duplicate = 0
+            for race in all_races:
+                if re.match(race, url):
+                    # try first to match parent website
+                    ironKids_races[kidsrace]['race_parent'] = all_races[race]['id']
+                    match = 1
+
+                if not match:
+                    # there is a bunch of Fun Run in races title, try to match name without
+                    stripped_name = kidsrace.replace(" Fun Run", "")
+                    if stripped_name in all_races[race]['name']:
+                        ironKids_races[kidsrace]['race_parent'] = all_races[race]['id']
+                        match = 1
+                        # get my attention if we match several races
+                        duplicate += 1
+
+            if not match:
+                not_matched.append(kidsrace)
+
+        return ironKids_races, not_matched
+
+    def getIronKidsParentRaces(self):
+
+        ironKids_races, not_matched = self.getMatchedIronKidsRaces()
+        manual_matched = self.getIronKidsRacesManualMatched()
+
+        # add manual matched to dataset
+        for kidsrace in manual_matched:
+            ironKids_races[kidsrace]['race_parent'] = manual_matched[kidsrace]
+
+        # need to add a note to update manual matches if not all no_matched
+        # are not covered by manual_matched
+
+        races_parent = []
+
+        for kidsrace in ironKids_races:
+            parent_race = ironKids_races[kidsrace]['race_parent']
+            if parent_race:  # some are set to None
+                races_parent.append(parent_race)
+
+        return races_parent
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        races_parent = self.getIronKidsParentRaces()
+
+        hasIronKids = (
+            X['race']
+                .apply(lambda x: 1 if x in races_parent else 0)
+                .rename('ironkids_race')
+        )
+
+        return pd.concat([X, hasIronKids], axis=1)
+
+
 class SelectColumns(BaseEstimator, TransformerMixin):
     """
     Select columns of interest
@@ -269,8 +355,8 @@ class SelectColumns(BaseEstimator, TransformerMixin):
             'n_years_existance', 'entrants_count_avg', 'run_sinusoity',
             'run_distance', 'run_elevationGain', 'run_score', 'bike_sinusoity',
             'bike_distance', 'bike_elevationGain', 'bike_score', 'swim_distance',
-            'swim_type'
-            # 'ironkids_race', 'attractivity_score',
+            'swim_type', 'ironkids_race',
+            # 'attractivity_score',
             # 'perc_entrants_from_country', 'perc_entrants_from_region',
             # 'perc_female', 'wc_slots', 'distance_to_nearest_shoreline',
             # 'distance_to_nearest_airport',
