@@ -80,3 +80,16 @@ class IronKidsRaces:
                 data = json.loads(line.strip())
                 ironKids_races[data['name'].strip().replace("IRONKIDS ", "")] = data
         return ironKids_races
+
+
+@dataclass
+class AllRaces:
+    url = "./../data/races/races.jl"
+
+    def load(self):
+        all_races = {}
+        with open(self.url) as f:
+            for line in f.readlines():
+                data = json.loads(line.strip())
+                all_races[data['website'].split('.asp')[0]] = data
+        return all_races
