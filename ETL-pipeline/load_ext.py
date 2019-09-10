@@ -1,5 +1,8 @@
 import json
+import pandas as pd
+import mysql.connector
 from dataclasses import dataclass
+from config import Cfg as cfg
 
 
 @dataclass
@@ -83,6 +86,34 @@ class IronKidsRaces:
 
 
 @dataclass
+class IronKidsRacesManualMatched:
+
+    def load(self):
+        # manual matches so far
+        manual_matches = {
+            "Cambridge Fun Run": "eagleman70.3",
+            "Warsaw": None,  # new race
+            "Les Sables dOlonne": None,  # new race
+            "Haugesund Norway": "haugesund",
+            "Coeur d Alene Fun Run": "coeurdalene70.3",
+            "Westfriesland": None,  # irrelevant, own festival
+            "Vitoria-Gasteiz": None,  # new race
+            "Dip 'N' Dash Lake Placid": None,  # irrelevant, own festival
+            "Subaru Canada Fun Run": "canada",
+            # "Sonoma County Builders Santa Rosa Fun Run": "santarosa70.3",
+            "Lake Placid 70.3 Fun Run": "lakeplacid70.3",
+            "Superfrog Fun Run": "superfrog70.3",
+            "Alpharetta": None,  # new race
+            "Keiki Dip 'n Dash": None,  # new race
+            "Mar del Plata": None,  # new race
+            "Clearwater Fun Run": None,  # other festival
+            "Galveston Fun Run": None,  # new race and will be for Texas 70.3 commemorative year
+            "Dip 'N' Dash Florida": "florida70.3"
+        }
+        return manual_matches
+
+
+@dataclass
 class AllRaces:
     url = "./../data/races/races.jl"
 
@@ -93,3 +124,18 @@ class AllRaces:
                 data = json.loads(line.strip())
                 all_races[data['website'].split('.asp')[0]] = data
         return all_races
+
+
+@dataclass
+class ResultsDf:
+    def load(self):
+        cnx = mysql.connector.connect(user=cfg.mysql_user, database=cfg.mysql_db,
+                                      password=cfg.mysql_pw, ssl_disabled=True)
+
+        query = "SELECT * FROM results;"
+
+        # execute the query and assign it to a pandas dataframe
+        df_results = pd.read_sql(query, con=cnx)
+
+        cnx.close()
+        return df_results
