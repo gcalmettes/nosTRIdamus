@@ -340,6 +340,91 @@ class HasIronKids(BaseEstimator, TransformerMixin):
         return pd.concat([X, hasIronKids], axis=1)
 
 
+class RaceAttractivity(BaseEstimator, TransformerMixin):
+    """
+    Feature computed based on the behavior of athletes who have the possibility
+    of coming back to a race. Do they actually returns?
+    """
+
+    def weighted_ratio(self, df, m=None, C=None):
+        '''
+        Function that computes the weighted ratio of each race
+        '''
+
+        m = self.m if m is None else m
+        C = self.C if C is None else C
+        v = df['total_hits']
+        R = df['ratio']
+
+        # Calculation based on the IMDB formula
+        return ((v / (v + m) * R) + (m / (m + v) * C))
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        df_results = ResultsDf(current_races=X['race']).load()
+
+        # keep only athletes that have done more than one season
+        # so they had the ability to redo the same race if they wanted
+        df_multi_season = df_results.loc[df_results["years_in_sport"] > 1]
+
+        # number of editions of the race
+        n_editions = (
+            df_multi_season
+                .groupby(['race', 'year'])
+                .size()
+                .reset_index()
+                .groupby('race')
+                .size()
+                .rename("n_edition")
+        )
+
+        # how many times races have been raced by those multi-season athletes?
+        total_hits = (
+            df_multi_season
+                .groupby(['race'])
+                .size()
+                .reset_index()
+                .rename(columns={0: "total_hits"})
+        )
+
+        # how many times multi-season athletes returned to race again the same race?
+        returned_hits = (
+            df_multi_season
+                .groupby(['race', 'athlete'])
+                .size()
+                .reset_index()
+                .groupby('race')
+                .size()
+                .rename("returned_hits")
+        )
+
+        df_results = (
+            total_hits
+                .merge(returned_hits, left_on="race", right_on="race", how="left")
+                .merge(n_editions, left_on="race", right_on="race", how="left")
+        )
+        df_results["ratio"] = df_results['returned_hits'] / df_results['total_hits']
+
+        # Only the races with more than 1 editions have potential returning entrants.
+        # If returned hits is < than total_hits it means there are entrants with same name
+
+        # keep only races with >1 editions
+        select_results = df_results.loc[df_results.n_edition > 1]
+        self.C = select_results.ratio.mean()
+        self.m = select_results["total_hits"].quantile(0.6)
+        select_results["attractivity_score"] = select_results.apply(self.weighted_ratio, axis=1)
+
+        # add back the races with just 1 edition and fill na
+        df_results = pd.concat([
+            select_results, df_results.loc[df_results.n_edition == 1]
+        ], sort=False).fillna(select_results.median())
+
+        return X.merge(df_results[['race', 'attractivity_score']],
+                       left_on="race", right_on="race", how="left")
+
+
 class SelectColumns(BaseEstimator, TransformerMixin):
     """
     Select columns of interest
@@ -355,8 +440,7 @@ class SelectColumns(BaseEstimator, TransformerMixin):
             'n_years_existance', 'entrants_count_avg', 'run_sinusoity',
             'run_distance', 'run_elevationGain', 'run_score', 'bike_sinusoity',
             'bike_distance', 'bike_elevationGain', 'bike_score', 'swim_distance',
-            'swim_type', 'ironkids_race',
-            # 'attractivity_score',
+            'swim_type', 'ironkids_race', 'attractivity_score',
             # 'perc_entrants_from_country', 'perc_entrants_from_region',
             # 'perc_female', 'wc_slots', 'distance_to_nearest_shoreline',
             # 'distance_to_nearest_airport',

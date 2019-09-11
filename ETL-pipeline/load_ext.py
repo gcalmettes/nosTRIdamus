@@ -128,14 +128,46 @@ class AllRaces:
 
 @dataclass
 class ResultsDf:
+    def __init__(self, current_races=[]):
+        self.data = None
+        self.current_races = current_races
+
+    def cleanUpData(self, yearThreshold=2019):
+        # worldchampionship70.3 and worldchampionship70.3m are the same race
+        self.data.loc[self.data.race == "worldchampionship70.3m", 'race'] = 'worldchampionship70.3'
+        # keep only results of non discontinued races
+        self.data = self.data.loc[self.data['race'].isin(self.current_races)]
+        # convert date to datetime
+        self.data['date'] = pd.to_datetime(self.data['date'])
+        self.data['year'] = self.data['year'].apply(int)
+
+        # keep only results from before yearThreshold since year is running currently
+        self.data = self.data.loc[self.data['year'] < yearThreshold]
+
+    def addFeatures(self):
+        # add years in sport
+        years_in_sport = (self.data
+             .groupby('athlete')
+             .pipe(lambda g: ((g.date.max() - g.date.min()).astype('timedelta64[Y]')) + 1)  # add 1 so if only one race will be 1 year
+             .rename('years_in_sport')
+        )
+
+        self.data = self.data.merge(years_in_sport, left_on="athlete", right_on="athlete", how="left")
+        self.data['years_in_sport'] = self.data.years_in_sport.astype(int)
+
     def load(self):
-        cnx = mysql.connector.connect(user=cfg.mysql_user, database=cfg.mysql_db,
-                                      password=cfg.mysql_pw, ssl_disabled=True)
+        if self.data is None:
+            cnx = mysql.connector.connect(user=cfg.mysql_user, database=cfg.mysql_db,
+                                          password=cfg.mysql_pw, ssl_disabled=True)
 
-        query = "SELECT * FROM results;"
+            query = "SELECT * FROM results;"
 
-        # execute the query and assign it to a pandas dataframe
-        df_results = pd.read_sql(query, con=cnx)
+            # execute the query and assign it to a pandas dataframe
+            self.data = pd.read_sql(query, con=cnx)
 
-        cnx.close()
-        return df_results
+            cnx.close()
+
+            self.cleanUpData()
+            self.addFeatures()
+
+        return self.data
