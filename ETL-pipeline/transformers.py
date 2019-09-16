@@ -425,6 +425,49 @@ class RaceAttractivity(BaseEstimator, TransformerMixin):
                        left_on="race", right_on="race", how="left")
 
 
+class FractionOfHomeRacer(BaseEstimator, TransformerMixin):
+    """
+    Compute the percentage of people from country of the race
+    """
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        df_results = ResultsDf(current_races=X['race']).load()
+
+        nationalities = (df_results
+            .groupby(['race', 'country'])
+            .size()
+            .reset_index()
+            .rename(columns={0: 'count'})
+            .pivot(index='race', columns='country', values='count')
+
+        )
+
+        from_country = pd.DataFrame(list(
+            nationalities.index.map(lambda race:
+                {'index': race,
+                 'from_country': nationalities.loc[race, X.loc[X.race == race, 'country_code'].values[0]]
+                }
+            )
+        ))
+
+        from_country = from_country.set_index('index')
+
+        from_country = pd.concat([
+            nationalities.sum(axis=1).rename("total"),
+            from_country
+        ], axis=1)
+
+        from_country['perc_entrants_from_country'] = from_country['from_country'] / from_country['total']
+        from_country['race'] = from_country.index
+
+        return X.merge(from_country[['race', 'perc_entrants_from_country']],
+                       left_on="race", right_on="race", how="left")
+
+
+
 class SelectColumns(BaseEstimator, TransformerMixin):
     """
     Select columns of interest
@@ -441,7 +484,7 @@ class SelectColumns(BaseEstimator, TransformerMixin):
             'run_distance', 'run_elevationGain', 'run_score', 'bike_sinusoity',
             'bike_distance', 'bike_elevationGain', 'bike_score', 'swim_distance',
             'swim_type', 'ironkids_race', 'attractivity_score',
-            # 'perc_entrants_from_country', 'perc_entrants_from_region',
+            'perc_entrants_from_country', #'perc_entrants_from_region',
             # 'perc_female', 'wc_slots', 'distance_to_nearest_shoreline',
             # 'distance_to_nearest_airport',
             # 'distance_to_nearest_airport_international', 'n_metropolitan_cities',
