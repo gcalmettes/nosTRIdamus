@@ -389,4 +389,3 @@ class CountryISOCodesMiddleEast:
 
     def load(self):
         return pd.read_csv(self.url)
-

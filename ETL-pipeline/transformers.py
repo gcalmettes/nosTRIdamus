@@ -5,7 +5,8 @@ import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from load_ext import RacesGeoInfo, RacesDescription, MissingRegions,\
                      RacesEntrantsCount, IronKidsRaces, AllRaces,\
-                     IronKidsRacesManualMatched, ResultsDf
+                     IronKidsRacesManualMatched, ResultsDf, CountryInfo,\
+                     CountryISOCodes, CountryISOCodesMiddleEast
 
 
 class KeepActiveRacesOnly(BaseEstimator, TransformerMixin):
@@ -425,7 +426,7 @@ class RaceAttractivity(BaseEstimator, TransformerMixin):
                        left_on="race", right_on="race", how="left")
 
 
-class FractionOfHomeRacer(BaseEstimator, TransformerMixin):
+class FractionOfHomeCountryRacer(BaseEstimator, TransformerMixin):
     """
     Compute the percentage of people from country of the race
     """
@@ -467,6 +468,101 @@ class FractionOfHomeRacer(BaseEstimator, TransformerMixin):
                        left_on="race", right_on="race", how="left")
 
 
+class FractionOfHomeRegionRacer(BaseEstimator, TransformerMixin):
+    """
+    Compute the percentage of people from region of the race
+    """
+
+    codes = CountryISOCodes().load()
+    codes_middle_east = CountryISOCodesMiddleEast().load()
+    countries = CountryInfo().load()
+
+    def get_region_from_ISO3(self, ISO3_code, changeOceania=False):
+        # get ISO-2 correspondance
+        ISO2_code = self.codes.loc[self.codes['alpha3'] == ISO3_code, 'alpha2'].values
+        ISO2_code = ISO2_code[0] if len(ISO2_code) else False
+        return self.get_region_from_ISO2(ISO2_code, changeOceania)
+
+    def get_region_from_ISO2(self, ISO2_code, changeOceania=False):
+        if ISO2_code and ISO2_code not in self.codes_middle_east['alpha2'].tolist():
+            country = list(filter(lambda x: x['code'] == ISO2_code, self.countries))
+            if len(country):
+                region = country[0].get('continent', False)
+                if changeOceania and region == "Oceania":
+                    # oceania is referred as Australia in races regions
+                    region = 'Australia'
+                return region
+            else:
+                return ''
+        elif ISO2_code and ISO2_code in self.codes_middle_east['alpha2'].tolist():
+            return 'Middle East'
+        else:
+            return ''
+
+    def get_race_region(self, race, races_df):
+        if race:
+            region = races_df.loc[races_df.race == race, 'region']
+            if len(region) > 0:
+                return region.values[0]
+            else:
+                return 'None'
+        else:
+            return 'None'
+
+    @staticmethod
+    def assign_region(race, region, regionalities):
+        if region in regionalities.columns:
+            return regionalities.loc[race, region]
+        else:
+            return np.nan
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        df_results = ResultsDf(current_races=X['race']).load()
+
+        # add region to each athlete
+        df_results['region'] = None
+
+        groups_indices = []
+        for g, dgroup in df_results.groupby('country'):
+            groups_indices.append((g, dgroup.index))
+
+        for (country_code_iso3, indices) in groups_indices:
+            df_results.loc[indices, 'region'] = self.get_region_from_ISO3(
+                country_code_iso3, changeOceania=True)
+
+        regionalities = (df_results
+            .groupby(['race', 'region'])
+            .size()
+            .reset_index()
+            .rename(columns={0: 'count'})
+            .pivot(index='race', columns='region', values='count')
+
+        )
+
+        from_region = pd.DataFrame(list(
+            regionalities.index.map(lambda race:
+                {'index': race,
+                'from_region': self.assign_region(
+                    race, self.get_race_region(race, X), regionalities
+                )}
+            )
+        ))
+
+        from_region = from_region.set_index('index')
+
+        from_region = pd.concat([
+            regionalities.sum(axis=1).rename("total"),
+            from_region], axis=1)
+
+        from_region['perc_entrants_from_region'] = from_region['from_region'] / from_region['total']
+        from_region['race'] = from_region.index
+
+        return X.merge(from_region[['race', 'perc_entrants_from_region']],
+                       left_on="race", right_on="race", how="left")
+
 
 class SelectColumns(BaseEstimator, TransformerMixin):
     """
@@ -484,7 +580,7 @@ class SelectColumns(BaseEstimator, TransformerMixin):
             'run_distance', 'run_elevationGain', 'run_score', 'bike_sinusoity',
             'bike_distance', 'bike_elevationGain', 'bike_score', 'swim_distance',
             'swim_type', 'ironkids_race', 'attractivity_score',
-            'perc_entrants_from_country', #'perc_entrants_from_region',
+            'perc_entrants_from_country', 'perc_entrants_from_region',
             # 'perc_female', 'wc_slots', 'distance_to_nearest_shoreline',
             # 'distance_to_nearest_airport',
             # 'distance_to_nearest_airport_international', 'n_metropolitan_cities',
