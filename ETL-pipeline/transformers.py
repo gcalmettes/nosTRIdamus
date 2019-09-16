@@ -622,7 +622,7 @@ class WorldChampionshipSlots(BaseEstimator, TransformerMixin):
         wc_slots = pd.DataFrame(X['race'])
         wc_slots['wc_slots'] = 0
 
-        for race, slots in self.qualifyiers.loc[:, ["Competition", "Slots"]].values:
+        for race, slots in self.qualifyers.loc[:, ["Competition", "Slots"]].values:
             racename = race.split("Ironman ")[1].lower()
 
             isHalf = False
@@ -642,7 +642,7 @@ class WorldChampionshipSlots(BaseEstimator, TransformerMixin):
                         match.append(c)
 
             if len(match) > 0:
-                X.loc[X.race == match[0], 'wc_slots'] = slots
+                wc_slots.loc[wc_slots.race == match[0], 'wc_slots'] = slots
 
         return X.merge(wc_slots,
                        left_on="race", right_on="race", how="left")
