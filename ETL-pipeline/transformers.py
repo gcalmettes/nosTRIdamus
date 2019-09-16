@@ -6,7 +6,8 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from load_ext import RacesGeoInfo, RacesDescription, MissingRegions,\
                      RacesEntrantsCount, IronKidsRaces, AllRaces,\
                      IronKidsRacesManualMatched, ResultsDf, CountryInfo,\
-                     CountryISOCodes, CountryISOCodesMiddleEast
+                     CountryISOCodes, CountryISOCodesMiddleEast,\
+                     WorldChampionshipQualifyers
 
 
 class KeepActiveRacesOnly(BaseEstimator, TransformerMixin):
@@ -564,6 +565,89 @@ class FractionOfHomeRegionRacer(BaseEstimator, TransformerMixin):
                        left_on="race", right_on="race", how="left")
 
 
+class FemaleRatio(BaseEstimator, TransformerMixin):
+    """
+    Compute the ratio females/males
+    """
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        df_results = ResultsDf(current_races=X['race']).load()
+
+        df_results['gender'] = None
+        df_results.loc[df_results.division.str.contains('M'), 'gender'] = 'M'
+        df_results.loc[df_results.division.str.contains('F'), 'gender'] = 'F'
+
+        gender_balance = {}
+        for race in df_results.race.unique():
+            gender_balance[race] = {}
+            balance = pd.DataFrame(df_results.loc[df_results.race == race]
+                 .groupby(['year', 'gender'])
+                 .size()
+                 .reset_index()
+                 .rename(columns={0: 'count'})
+                 .pivot(index='year', columns='gender', values='count')
+            )
+            balance['total'] = balance.F + balance.M
+            balance['ratio_F'] = balance.F/balance.total
+            gender_balance[race]['data'] = balance.to_dict(orient='records')
+            gender_balance[race]['avg_F'] = balance.ratio_F.mean()
+
+        gender_balance_df = pd.DataFrame([
+            {'race': race,
+             'perc_female': gender_balance[race]['avg_F'],
+             'n_years': len(gender_balance[race]['data']),
+             'avg_total': pd.DataFrame(gender_balance[race]['data']).mean()['total'],
+             'type': '70.3' if '70.3' in race else 'full'
+            } for race in gender_balance
+        ])
+
+        return X.merge(gender_balance_df[['race', 'perc_female']],
+                       left_on="race", right_on="race", how="left")
+
+
+class WorldChampionshipSlots(BaseEstimator, TransformerMixin):
+    """
+    Compute the ratio females/males
+    """
+
+    qualifyers = WorldChampionshipQualifyers().load()
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        wc_slots = pd.DataFrame(X['race'])
+        wc_slots['wc_slots'] = 0
+
+        for race, slots in self.qualifyiers.loc[:, ["Competition", "Slots"]].values:
+            racename = race.split("Ironman ")[1].lower()
+
+            isHalf = False
+            match = []
+            if "70.3" in race:
+                isHalf = True
+                racename = racename.replace("70.3 ", "")
+            racename = racename.replace("-", "").replace(" ", "")
+            candidates = X.loc[X.race.str.contains(f"^{racename}", regex=True) == True, 'race'].values
+            if isHalf:
+                for c in candidates:
+                    if "70.3" in c:
+                        match.append(c)
+            else:
+                for c in candidates:
+                    if "70.3" not in c:
+                        match.append(c)
+
+            if len(match) > 0:
+                X.loc[X.race == match[0], 'wc_slots'] = slots
+
+        return X.merge(wc_slots,
+                       left_on="race", right_on="race", how="left")
+
+
 class SelectColumns(BaseEstimator, TransformerMixin):
     """
     Select columns of interest
@@ -581,7 +665,7 @@ class SelectColumns(BaseEstimator, TransformerMixin):
             'bike_distance', 'bike_elevationGain', 'bike_score', 'swim_distance',
             'swim_type', 'ironkids_race', 'attractivity_score',
             'perc_entrants_from_country', 'perc_entrants_from_region',
-            # 'perc_female', 'wc_slots', 'distance_to_nearest_shoreline',
+            'perc_female', 'wc_slots', # 'distance_to_nearest_shoreline',
             # 'distance_to_nearest_airport',
             # 'distance_to_nearest_airport_international', 'n_metropolitan_cities',
             # 'n_hotels', 'n_restaurants', 'n_entertainment', 'n_nightlife',

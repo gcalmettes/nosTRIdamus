@@ -389,3 +389,13 @@ class CountryISOCodesMiddleEast:
 
     def load(self):
         return pd.read_csv(self.url)
+
+
+@dataclass
+class WorldChampionshipQualifyers:
+    # official ISO codes scraped from https://www.iso.org/obp/ui/#search/code/
+    url = './../data/races/qualifyiers-slots.csv'
+
+    def load(self):
+        return pd.read_csv(self.url)
+
