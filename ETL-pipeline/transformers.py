@@ -10,7 +10,7 @@ from load_ext import RacesGeoInfo, RacesDescription, MissingRegions,\
                      WorldChampionshipQualifyers, Shorelines, Airports,\
                      Hotels, Restaurants, Entertainment, Nightlife,\
                      Shops, BikeShops, Pools, AthleticCenters,\
-                     FitnessCenters, MetropolitanArea
+                     FitnessCenters, MetropolitanArea, Weather
 
 
 class KeepActiveRacesOnly(BaseEstimator, TransformerMixin):
@@ -722,34 +722,24 @@ class DistanceToNearestAirport(BaseEstimator, TransformerMixin):
             self.airports.name.str.lower().str.contains("international")
         ]
 
-        distance_to_nearest_airport = (
-            X[['lat', 'lon']]
-                .transpose()
-                .apply(lambda race: np.min(
+        return pd.concat([
+            X,
+            X[['lat', 'lon']].transpose().apply(lambda race: pd.Series({
+                'distance_to_nearest_airport': np.min(
                     self.haversine(self.airports.lat,
                                    self.airports.lon,
                                    race['lat'],
                                    race['lon']
                                    ) / 1000  # in km
-                        ))
-        ).rename('distance_to_nearest_airport')
-
-        distance_to_nearest_airport_international = (
-            X[['lat', 'lon']]
-                .transpose()
-                .apply(lambda race: np.min(
+                        ),
+                'distance_to_nearest_airport_international': np.min(
                     self.haversine(international_airports.lat,
                                    international_airports.lon,
                                    race['lat'],
                                    race['lon']
                                    ) / 1000  # in km
-                        ))
-        ).rename('distance_to_nearest_airport_international')
-
-        return pd.concat([
-            X,
-            distance_to_nearest_airport,
-            distance_to_nearest_airport_international
+                        )
+                })).transpose()
         ], axis=1)
 
 
@@ -775,26 +765,18 @@ class GetNearbyFacilities(BaseEstimator, TransformerMixin):
 
         return pd.concat([
             X,
-            X.race.apply(lambda race: metropolitanArea[race]['totalCount'])
-                                        .rename('n_metropolitan_cities'),
-            X.race.apply(lambda race: hotels[race]['poi_n_results'])
-                                        .rename('n_hotels'),
-            X.race.apply(lambda race: restaurants[race]['poi_n_results'])
-                                        .rename('n_restaurants'),
-            X.race.apply(lambda race: entertainment[race]['poi_n_results'])
-                                        .rename('n_entertainment'),
-            X.race.apply(lambda race: nightLife[race]['poi_n_results'])
-                                        .rename('n_nightlife'),
-            X.race.apply(lambda race: shops[race]['poi_n_results'])
-                                        .rename('n_shops'),
-            X.race.apply(lambda race: bikeShops[race]['poi_n_results'])
-                                        .rename('n_bike_shops'),
-            X.race.apply(lambda race: pools[race]['poi_n_results'])
-                                        .rename('n_pools'),
-            X.race.apply(lambda race: athleticCenters[race]['poi_n_results'])
-                                        .rename('n_athletic_centers'),
-            X.race.apply(lambda race: fitnessCenters[race]['poi_n_results'])
-                                        .rename('n_fitness_centers')
+            X.race.apply(lambda race: pd.Series({
+                'n_metropolitan_cities': metropolitanArea[race]['totalCount'],
+                'n_hotels': hotels[race]['poi_n_results'],
+                'n_restaurants': restaurants[race]['poi_n_results'],
+                'n_entertainment': entertainment[race]['poi_n_results'],
+                'n_nightlife': nightLife[race]['poi_n_results'],
+                'n_shops': shops[race]['poi_n_results'],
+                'n_bike_shops': bikeShops[race]['poi_n_results'],
+                'n_pools': pools[race]['poi_n_results'],
+                'n_athletic_centers': athleticCenters[race]['poi_n_results'],
+                'n_fitness_centers': fitnessCenters[race]['poi_n_results']
+            }))
         ], axis=1)
 
 
