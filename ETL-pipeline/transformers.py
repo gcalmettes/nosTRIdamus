@@ -879,6 +879,21 @@ class BikeElevationMap(BaseEstimator, TransformerMixin):
         return pd.concat([X, bike_elevation_map], axis=1)
 
 
+class IsHalf(BaseEstimator, TransformerMixin):
+    """
+    Is it a half ironman?
+    """
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        return pd.concat([
+            X,
+            X.race.apply(lambda x: '70.3' in x).rename('is_70.3')
+        ], axis=1)
+
+
 class SelectColumns(BaseEstimator, TransformerMixin):
     """
     Select columns of interest
