@@ -407,3 +407,27 @@ class Shorelines:
     def load(self):
         return pd.read_csv(self.url)
 
+
+@dataclass
+class Airports:
+    url = './../data/geo-data/openflights/airports.dat'
+    # open flights dataset
+    columns = [
+        "id",
+        "name",
+        "city",
+        "country",
+        "iata",
+        "icao",
+        "lat",
+        "lon",
+        "altitude",
+        "timezone",
+        "dst",
+        "tz",
+        "type",
+        "source"
+    ]
+
+    def load(self):
+        return pd.read_csv(self.url, names=self.columns)
