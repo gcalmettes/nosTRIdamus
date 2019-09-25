@@ -399,3 +399,11 @@ class WorldChampionshipQualifyers:
     def load(self):
         return pd.read_csv(self.url)
 
+
+@dataclass
+class Shorelines:
+    url = './../data/geo-data/shorelines_lat_lon.csv'
+
+    def load(self):
+        return pd.read_csv(self.url)
+
