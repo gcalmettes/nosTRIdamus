@@ -6,13 +6,30 @@ from config import Cfg as cfg
 
 
 @dataclass
-class RacesGeoInfo:
-    url = "./../data/geo-data/races_geo_info.json"
+class BaseLoadJSON:
+    url = ''
 
     def load(self):
         with open(self.url, 'r') as f:
             races_geo_info = json.loads(f.read())
         return races_geo_info
+
+
+@dataclass
+class BaseLoadCSV:
+    url = ''
+    columns = []
+
+    def load(self):
+        if not self.columns:
+            return pd.read_csv(self.url)
+        else:
+            return pd.read_csv(self.url, names=self.columns)
+
+
+@dataclass
+class RacesGeoInfo(BaseLoadJSON):
+    url = "./../data/geo-data/races_geo_info.json"
 
 
 @dataclass
@@ -374,42 +391,30 @@ class CountryInfo:
 
 
 @dataclass
-class CountryISOCodes:
+class CountryISOCodes(BaseLoadCSV):
     # official ISO codes scraped from https://www.iso.org/obp/ui/#search/code/
     url = './../data/geo-data/country-codes.csv'
 
-    def load(self):
-        return pd.read_csv(self.url)
-
 
 @dataclass
-class CountryISOCodesMiddleEast:
+class CountryISOCodesMiddleEast(BaseLoadCSV):
     # official ISO codes scraped from https://www.iso.org/obp/ui/#search/code/
     url = './../data/geo-data/country-codes-middle-east.csv'
 
-    def load(self):
-        return pd.read_csv(self.url)
-
 
 @dataclass
-class WorldChampionshipQualifyers:
+class WorldChampionshipQualifyers(BaseLoadCSV):
     # official ISO codes scraped from https://www.iso.org/obp/ui/#search/code/
     url = './../data/races/qualifyiers-slots.csv'
 
-    def load(self):
-        return pd.read_csv(self.url)
-
 
 @dataclass
-class Shorelines:
+class Shorelines(BaseLoadCSV):
     url = './../data/geo-data/shorelines_lat_lon.csv'
 
-    def load(self):
-        return pd.read_csv(self.url)
-
 
 @dataclass
-class Airports:
+class Airports(BaseLoadCSV):
     url = './../data/geo-data/openflights/airports.dat'
     # open flights dataset
     columns = [
@@ -429,5 +434,7 @@ class Airports:
         "source"
     ]
 
-    def load(self):
-        return pd.read_csv(self.url, names=self.columns)
+
+@dataclass
+class MetropolitanArea(BaseLoadJSON):
+    url = './../data/geo-data/races-metropolitan-area.json'
