@@ -7,7 +7,10 @@ from load_ext import RacesGeoInfo, RacesDescription, MissingRegions,\
                      RacesEntrantsCount, IronKidsRaces, AllRaces,\
                      IronKidsRacesManualMatched, ResultsDf, CountryInfo,\
                      CountryISOCodes, CountryISOCodesMiddleEast,\
-                     WorldChampionshipQualifyers, Shorelines, Airports
+                     WorldChampionshipQualifyers, Shorelines, Airports,\
+                     Hotels, Restaurants, Entertainment, Nightlife,\
+                     Shops, BikeShops, Pools, AthleticCenters,\
+                     FitnessCenters, MetropolitanArea
 
 
 class KeepActiveRacesOnly(BaseEstimator, TransformerMixin):
@@ -750,6 +753,51 @@ class DistanceToNearestAirport(BaseEstimator, TransformerMixin):
         ], axis=1)
 
 
+class GetNearbyFacilities(BaseEstimator, TransformerMixin):
+    """
+    Get information about nearby attractions, restaurants
+    """
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        metropolitanArea = MetropolitanArea().load()
+        hotels = Hotels().load()
+        restaurants = Restaurants().load()
+        entertainment = Entertainment().load()
+        nightLife = Nightlife().load()
+        shops = Shops().load()
+        bikeShops = BikeShops().load()
+        pools = Pools().load()
+        athleticCenters = AthleticCenters().load()
+        fitnessCenters = FitnessCenters().load()
+
+        return pd.concat([
+            X,
+            X.race.apply(lambda race: metropolitanArea[race]['totalCount'])
+                                        .rename('n_metropolitan_cities'),
+            X.race.apply(lambda race: hotels[race]['poi_n_results'])
+                                        .rename('n_hotels'),
+            X.race.apply(lambda race: restaurants[race]['poi_n_results'])
+                                        .rename('n_restaurants'),
+            X.race.apply(lambda race: entertainment[race]['poi_n_results'])
+                                        .rename('n_entertainment'),
+            X.race.apply(lambda race: nightLife[race]['poi_n_results'])
+                                        .rename('n_nightlife'),
+            X.race.apply(lambda race: shops[race]['poi_n_results'])
+                                        .rename('n_shops'),
+            X.race.apply(lambda race: bikeShops[race]['poi_n_results'])
+                                        .rename('n_bike_shops'),
+            X.race.apply(lambda race: pools[race]['poi_n_results'])
+                                        .rename('n_pools'),
+            X.race.apply(lambda race: athleticCenters[race]['poi_n_results'])
+                                        .rename('n_athletic_centers'),
+            X.race.apply(lambda race: fitnessCenters[race]['poi_n_results'])
+                                        .rename('n_fitness_centers')
+        ], axis=1)
+
+
 class SelectColumns(BaseEstimator, TransformerMixin):
     """
     Select columns of interest
@@ -769,10 +817,10 @@ class SelectColumns(BaseEstimator, TransformerMixin):
             'perc_entrants_from_country', 'perc_entrants_from_region',
             'perc_female', 'wc_slots', 'distance_to_nearest_shoreline',
             'distance_to_nearest_airport',
-            'distance_to_nearest_airport_international'#, 'n_metropolitan_cities',
-            # 'n_hotels', 'n_restaurants', 'n_entertainment', 'n_nightlife',
-            # 'n_shops', 'n_bike_shops', 'n_pools', 'n_athletic_centers',
-            # 'n_fitness_centers', 'weather_icon', 'weather_summary',
+            'distance_to_nearest_airport_international', 'n_metropolitan_cities',
+            'n_hotels', 'n_restaurants', 'n_entertainment', 'n_nightlife',
+            'n_shops', 'n_bike_shops', 'n_pools', 'n_athletic_centers',
+            'n_fitness_centers'#, 'weather_icon', 'weather_summary',
             # 'temperatureMin', 'temperatureMax', 'apparentTemperatureMin',
             # 'apparentTemperatureMax', 'swim_min', 'swim_mean', 'swim_max',
             # 'bike_min', 'bike_mean', 'bike_max', 'run_min', 'run_mean', 'run_max',
