@@ -52,10 +52,14 @@ class CleanUpNames(BaseEstimator, TransformerMixin):
         # rename worldchampionship race
         new_race = X['race'].apply(lambda x: x if x != 'worldchampionship70.3m'
                                    else 'worldchampionship70.3')
-        changed_cols = ['race', 'racename']
+        # city of worldchampionship70.3 is messed up
+        new_city = X['city'].apply(lambda x: x if x != 'September 1 & 2'
+                                   else 'Nelson Mandela Bay, South Africa')
+        changed_cols = ['race', 'racename', 'city']
         return pd.concat([
             new_race,
             new_racename,
+            new_city,
             X.loc[:, [col for col in X.columns if col not in changed_cols]]
         ], axis=1)
 
