@@ -505,7 +505,7 @@ class Weather(BaseLoadJSON):
     @property
     def summaries(self):
         self.getIconsAndSummary()
-        return self._icons
+        return self._summaries
 
     @property
     def temperatures(self):
