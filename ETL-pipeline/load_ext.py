@@ -438,3 +438,52 @@ class Airports(BaseLoadCSV):
 @dataclass
 class MetropolitanArea(BaseLoadJSON):
     url = './../data/geo-data/races-metropolitan-area.json'
+
+
+# Distance for Geo info from Foursquare
+distance = 100
+
+
+@dataclass
+class Hotels(BaseLoadJSON):
+    url = f'./../data/geo-data/races-poi-hotels-{distance}km.json'
+
+
+@dataclass
+class Restaurants(BaseLoadJSON):
+    url = f'./../data/geo-data/races-poi-food-{distance}km.json'
+
+
+@dataclass
+class Entertainment(BaseLoadJSON):
+    url = f'./../data/geo-data/races-poi-entertainment-{distance}km.json'
+
+
+@dataclass
+class Nightlife(BaseLoadJSON):
+    url = f'./../data/geo-data/races-poi-nightlife-{distance}km.json'
+
+
+@dataclass
+class Shops(BaseLoadJSON):
+    url = f'./../data/geo-data/races-poi-shops_services-{distance}km.json'
+
+
+@dataclass
+class BikeShops(BaseLoadJSON):
+    url = f'./../data/geo-data/races-poi-shops_bike-{distance}km.json'
+
+
+@dataclass
+class Pools(BaseLoadJSON):
+    url = f'./../data/geo-data/races-poi-pool-{distance}km.json'
+
+
+@dataclass
+class AthleticCenters(BaseLoadJSON):
+    url = f'./../data/geo-data/races-poi-athletic_centers-{distance}km.json'
+
+
+@dataclass
+class FitnessCenters(BaseLoadJSON):
+    url = f'./../data/geo-data/races-poi-fitness_centers-{distance}km.json'
