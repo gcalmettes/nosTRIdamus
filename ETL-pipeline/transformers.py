@@ -7,7 +7,7 @@ from load_ext import RacesGeoInfo, RacesDescription, MissingRegions,\
                      RacesEntrantsCount, IronKidsRaces, AllRaces,\
                      IronKidsRacesManualMatched, ResultsDf, CountryInfo,\
                      CountryISOCodes, CountryISOCodesMiddleEast,\
-                     WorldChampionshipQualifyers, Shorelines
+                     WorldChampionshipQualifyers, Shorelines, Airports
 
 
 class KeepActiveRacesOnly(BaseEstimator, TransformerMixin):
@@ -666,7 +666,7 @@ class DistanceToNearestShoreline(BaseEstimator, TransformerMixin):
         lon2_rad = np.radians(lon2)
         delta_lat = lat2_rad - lat1_rad
         delta_lon = lon2_rad - lon1_rad
-        a = np.sqrt((np.sin(delta_lat/2))**2 + np.cos(lat1_rad) * np.cos(lat2_rad) * (np.sin(delta_lon/2))**2 )
+        a = np.sqrt((np.sin(delta_lat / 2)) ** 2 + np.cos(lat1_rad) * np.cos(lat2_rad) * (np.sin(delta_lon / 2)) ** 2)
         d = 2 * 6371000 * np.arcsin(a)
         return d
 
@@ -682,11 +682,72 @@ class DistanceToNearestShoreline(BaseEstimator, TransformerMixin):
                                    self.shorelines.lon,
                                    race['lat'],
                                    race['lon']
-                                   )/1000 # in km
+                                   ) / 1000  # in km
                         ))
         ).rename('distance_to_nearest_shoreline')
 
         return pd.concat([X, distance_to_nearest_shoreline], axis=1)
+
+
+class DistanceToNearestAirport(BaseEstimator, TransformerMixin):
+    """
+    Compute distance to neareast airport (+ international airport)
+    """
+
+    airports = Airports().load()
+
+    @staticmethod
+    def haversine(lat1, lon1, lat2, lon2):
+        """
+        Calculate distance (in meters) between two lat/lon pairs
+        """
+        lat1_rad = np.radians(lat1)
+        lat2_rad = np.radians(lat2)
+        lon1_rad = np.radians(lon1)
+        lon2_rad = np.radians(lon2)
+        delta_lat = lat2_rad - lat1_rad
+        delta_lon = lon2_rad - lon1_rad
+        a = np.sqrt((np.sin(delta_lat / 2)) ** 2 + np.cos(lat1_rad) * np.cos(lat2_rad) * (np.sin(delta_lon / 2)) ** 2)
+        d = 2 * 6371000 * np.arcsin(a)
+        return d
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        international_airports = self.airports.loc[
+            self.airports.name.str.lower().str.contains("international")
+        ]
+
+        distance_to_nearest_airport = (
+            X[['lat', 'lon']]
+                .transpose()
+                .apply(lambda race: np.min(
+                    self.haversine(self.airports.lat,
+                                   self.airports.lon,
+                                   race['lat'],
+                                   race['lon']
+                                   ) / 1000  # in km
+                        ))
+        ).rename('distance_to_nearest_airport')
+
+        distance_to_nearest_airport_international = (
+            X[['lat', 'lon']]
+                .transpose()
+                .apply(lambda race: np.min(
+                    self.haversine(international_airports.lat,
+                                   international_airports.lon,
+                                   race['lat'],
+                                   race['lon']
+                                   ) / 1000  # in km
+                        ))
+        ).rename('distance_to_nearest_airport_international')
+
+        return pd.concat([
+            X,
+            distance_to_nearest_airport,
+            distance_to_nearest_airport_international
+        ], axis=1)
 
 
 class SelectColumns(BaseEstimator, TransformerMixin):
@@ -707,8 +768,8 @@ class SelectColumns(BaseEstimator, TransformerMixin):
             'swim_type', 'ironkids_race', 'attractivity_score',
             'perc_entrants_from_country', 'perc_entrants_from_region',
             'perc_female', 'wc_slots', 'distance_to_nearest_shoreline',
-            # 'distance_to_nearest_airport',
-            # 'distance_to_nearest_airport_international', 'n_metropolitan_cities',
+            'distance_to_nearest_airport',
+            'distance_to_nearest_airport_international'#, 'n_metropolitan_cities',
             # 'n_hotels', 'n_restaurants', 'n_entertainment', 'n_nightlife',
             # 'n_shops', 'n_bike_shops', 'n_pools', 'n_athletic_centers',
             # 'n_fitness_centers', 'weather_icon', 'weather_summary',
