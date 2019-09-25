@@ -1,6 +1,7 @@
 import json
 import re
 import numpy as np
+from scipy import signal
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from load_ext import RacesGeoInfo, RacesDescription, MissingRegions,\
@@ -806,6 +807,78 @@ class GetTypicalTemperatures(BaseEstimator, TransformerMixin):
         return X.merge(weather_temperatures_df, left_on="race", right_on="race", how="left")
 
 
+class RacingTimesStatistics(BaseEstimator, TransformerMixin):
+    """
+    Compute time statistics for races
+    """
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        df_results = ResultsDf(current_races=X['race']).load()
+
+        avg_times = (df_results.loc[((df_results[['swim', 'bike', 'run']] == -1).sum(axis=1) == 0) &
+                                    ((df_results[['swim', 'bike', 'run']] < 0).sum(axis=1) == 0)]
+             .groupby(["race", "year"])[['swim', 'bike', 'run']]
+             .agg(['min', 'mean', 'max'])
+             .reset_index()
+             .groupby('race')
+             .mean()[['swim', 'bike', 'run']]
+        )
+        avg_times.columns = ['_'.join(col).strip() for col in avg_times.columns.values]
+        avg_times = avg_times.reset_index()
+
+        return X.merge(avg_times, left_on="race", right_on="race", how="left")
+
+
+class RunElevationMap(BaseEstimator, TransformerMixin):
+    """
+    Extract and resample elevation profile for the run
+    """
+    n_points = 200
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        run_elevation_map = (
+            X['race']
+                .map(lambda race:
+                    json.dumps([{"x": x, "y": y} for x, y in zip(
+                        # resample to 500 points
+                        np.linspace(0, np.max(json.loads(X.loc[X['race'] == race, 'map'].values[0])['run']['distance']), self.n_points),
+                      signal.resample(json.loads(X.loc[X['race'] == race, 'map'].values[0])['run']['elevation'], self.n_points)
+                    )])
+
+                )
+        ).rename('run_elevation_map')
+        return pd.concat([X, run_elevation_map], axis=1)
+
+
+class BikeElevationMap(BaseEstimator, TransformerMixin):
+    """
+    Extract and resample elevation profile for the bike
+    """
+    n_points = 200
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        bike_elevation_map = (
+            X['race']
+                .map(lambda race:
+                    json.dumps([{"x": x, "y": y} for x, y in zip(
+                        # resample to 500 points
+                        np.linspace(0, np.max(json.loads(X.loc[X['race'] == race, 'map'].values[0])['bike']['distance']), self.n_points),
+                      signal.resample(json.loads(X.loc[X['race'] == race, 'map'].values[0])['bike']['elevation'], self.n_points)
+                    )])
+
+                )
+        ).rename('bike_elevation_map')
+        return pd.concat([X, bike_elevation_map], axis=1)
+
+
 class SelectColumns(BaseEstimator, TransformerMixin):
     """
     Select columns of interest
@@ -830,8 +903,8 @@ class SelectColumns(BaseEstimator, TransformerMixin):
             'n_shops', 'n_bike_shops', 'n_pools', 'n_athletic_centers',
             'n_fitness_centers', 'weather_icon', 'weather_summary',
             'temperatureMin', 'temperatureMax', 'apparentTemperatureMin',
-            'apparentTemperatureMax'#, 'swim_min', 'swim_mean', 'swim_max',
-            # 'bike_min', 'bike_mean', 'bike_max', 'run_min', 'run_mean', 'run_max',
-            # 'run_elevation_map', 'bike_elevation_map', 'is_70.3'
+            'apparentTemperatureMax', 'swim_min', 'swim_mean', 'swim_max',
+             'bike_min', 'bike_mean', 'bike_max', 'run_min', 'run_mean', 'run_max',
+            'run_elevation_map', 'bike_elevation_map', 'is_70.3'
         ]
         return X.loc[:, columns_to_keep]
