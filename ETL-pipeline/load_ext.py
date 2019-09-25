@@ -11,8 +11,8 @@ class BaseLoadJSON:
 
     def load(self):
         with open(self.url, 'r') as f:
-            races_geo_info = json.loads(f.read())
-        return races_geo_info
+            data = json.loads(f.read())
+        return data
 
 
 @dataclass
