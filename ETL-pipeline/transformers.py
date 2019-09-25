@@ -780,6 +780,32 @@ class GetNearbyFacilities(BaseEstimator, TransformerMixin):
         ], axis=1)
 
 
+class GetTypicalWeather(BaseEstimator, TransformerMixin):
+    """
+    Get information about typical weather
+    """
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        weather_icons_summary_df = Weather().getSummaryDataFrame()
+        return X.merge(weather_icons_summary_df, left_on="race", right_on="race", how="left")
+
+
+class GetTypicalTemperatures(BaseEstimator, TransformerMixin):
+    """
+    Get information about typical min/max temperatures
+    """
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        weather_temperatures_df = Weather().getTemperaturesDataFrame()
+        return X.merge(weather_temperatures_df, left_on="race", right_on="race", how="left")
+
+
 class SelectColumns(BaseEstimator, TransformerMixin):
     """
     Select columns of interest
@@ -802,9 +828,9 @@ class SelectColumns(BaseEstimator, TransformerMixin):
             'distance_to_nearest_airport_international', 'n_metropolitan_cities',
             'n_hotels', 'n_restaurants', 'n_entertainment', 'n_nightlife',
             'n_shops', 'n_bike_shops', 'n_pools', 'n_athletic_centers',
-            'n_fitness_centers'#, 'weather_icon', 'weather_summary',
-            # 'temperatureMin', 'temperatureMax', 'apparentTemperatureMin',
-            # 'apparentTemperatureMax', 'swim_min', 'swim_mean', 'swim_max',
+            'n_fitness_centers', 'weather_icon', 'weather_summary',
+            'temperatureMin', 'temperatureMax', 'apparentTemperatureMin',
+            'apparentTemperatureMax'#, 'swim_min', 'swim_mean', 'swim_max',
             # 'bike_min', 'bike_mean', 'bike_max', 'run_min', 'run_mean', 'run_max',
             # 'run_elevation_map', 'bike_elevation_map', 'is_70.3'
         ]

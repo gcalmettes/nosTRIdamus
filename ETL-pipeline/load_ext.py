@@ -1,4 +1,5 @@
 import json
+import numpy as np
 import pandas as pd
 import mysql.connector
 from dataclasses import dataclass
@@ -487,3 +488,91 @@ class AthleticCenters(BaseLoadJSON):
 @dataclass
 class FitnessCenters(BaseLoadJSON):
     url = f'./../data/geo-data/races-poi-fitness_centers-{distance}km.json'
+
+
+@dataclass
+class Weather(BaseLoadJSON):
+    url = './../data/geo-data/races_weather.json'
+    _icons = {}
+    _summaries = {}
+    _temperatures = []
+
+    @property
+    def icons(self):
+        self.getIconsAndSummary()
+        return self._icons
+
+    @property
+    def summaries(self):
+        self.getIconsAndSummary()
+        return self._icons
+
+    @property
+    def temperatures(self):
+        self.getIconsAndSummary()
+        return self._temperatures
+
+    def getIconsAndSummary(self):
+        if len(self._icons.keys()) == 0:
+            data = self.load()
+            for race in data:
+                editions = data[race]['editions']
+                self._icons[race] = []
+                self._summaries[race] = []
+                n_editions = len(editions)
+                i = 0
+                for edition in editions:
+                    daily_data = edition['weather'].get('daily', False)
+                    if daily_data:
+                        self._icons[race].append(daily_data['data'][0]['icon'])
+                        self._summaries[race].append(daily_data['data'][0]['summary'])
+                        # temperatures
+                        extract = {
+                            'race': edition['id'],
+                            'year': edition['date'].split('-')[0],
+                            'temperatureMin': edition['weather']['daily']['data'][0]['temperatureMin'],
+                            'temperatureMax': edition['weather']['daily']['data'][0]['temperatureMax'],
+                            'apparentTemperatureMin': edition['weather']['daily']['data'][0]['apparentTemperatureMin'],
+                            'apparentTemperatureMax': edition['weather']['daily']['data'][0]['apparentTemperatureMax']
+                        }
+                        self._temperatures.append(extract)
+                    else:
+                        i += 1
+                        hourly_data = edition['weather'].get('hourly')
+                        if hourly_data:
+                            i -= 1
+                            self._icons[race].append(hourly_data['icon'])
+                            self._summaries[race].append(hourly_data['summary'])
+                            # temperatures
+                            temperature = [t['temperature'] for t in edition['weather']['hourly']['data']]
+                            apparentTemperature = [t['apparentTemperature'] for t in edition['weather']['hourly']['data']]
+                            extract = {
+                                'race': edition['id'],
+                                'year': edition['date'].split('-')[0],
+                                'temperatureMin': np.min(temperature),
+                                'temperatureMax': np.max(temperature),
+                                'apparentTemperatureMin': np.min(apparentTemperature),
+                                'apparentTemperatureMax': np.max(apparentTemperature)
+                            }
+                            self._temperatures.append(extract)
+                        if i == n_editions:
+                            print(f'No icon/summary data for {race}')
+
+    def getSummaryDataFrame(self):
+        return pd.DataFrame([[
+            race,
+            max(self.icons[race] or ['partly-cloudy-day'], key=self.icons[race].count),
+            max(self.summaries[race] or ['Partly cloudy'], key=self.summaries[race].count)
+            ] for race in self.icons
+        ], columns=['race', 'weather_icon', 'weather_summary'])
+
+    def getTemperaturesDataFrame(self):
+        return (pd.DataFrame(self.temperatures)
+                    .groupby("race")[[
+                        'temperatureMin', 'temperatureMax',
+                        'apparentTemperatureMin', 'apparentTemperatureMax'
+                    ]]
+                    .mean()
+                    .reset_index()
+        )
+        
