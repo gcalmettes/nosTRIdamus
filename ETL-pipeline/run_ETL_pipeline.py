@@ -20,7 +20,6 @@ cnx = mysql.connector.connect(
   password=cfg.mysql_pw, ssl_disabled=True)
 
 query = "SELECT * FROM races;"
-# execute the query and assign it to a pandas dataframe
 df_races = pd.read_sql(query, con=cnx)
 
 cnx.close()
