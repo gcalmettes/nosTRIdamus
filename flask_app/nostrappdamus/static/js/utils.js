@@ -24,7 +24,10 @@ const sendRequest = config => {
   return request.then(response => response.json())
 }
 
-const tabulate = ({ id, columns = [], data = [], onMouseOver = (d) => {}, onMouseOut = (d) => {} }) => {
+const tabulate = ({ id, columns = [], data = [],
+                    onMouseOver = (d) => {}, onMouseOut = (d) => {},
+                    onClick = (d) => {}
+                  }) => {
   const table = d3.select(`#${id}`)
   const thead = table.selectAll('thead')
     .data([null])
@@ -54,6 +57,7 @@ const tabulate = ({ id, columns = [], data = [], onMouseOver = (d) => {}, onMous
       .join(enter => enter.append('tr'))
       .on('mouseover', (d, i, k) => onMouseOver(d, i, k))
       .on('mouseout', (d, i, k) => onMouseOut(d, i, k))
+      .on('click', (d, i, k) => onClick(d, i, k))
   
   rows.selectAll('td')
       .data(row => columns.map(

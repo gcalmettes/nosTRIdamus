@@ -361,6 +361,10 @@ div.tooltip {
     fill: #FBC15E;
 }
 
+.race-location.isClicked { 
+    fill: #00BFFF;
+}
+
 
 /***************************************/
 /********  Race details modal   ********/
@@ -403,6 +407,10 @@ div.tooltip {
 
 .highlighted {
   background-color: #FBC15E;
+}
+
+.clicked {
+  background-color: #00BFFF;
 }
 
 table {

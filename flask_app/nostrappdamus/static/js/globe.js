@@ -5,6 +5,7 @@ const shared = {
   drawLocations: null,
   setLocations: null,
   showInfo: null,
+  setClickedElement: null,
   resetInfo: null,
   centerGlobeTo: null
 }
@@ -14,6 +15,7 @@ let timerWorld,
     runTimerWorld = false,
     hoveredElement = null,
     displayedElement = null,
+    clickedElement = null,
     tooltipShown = false
 
 // Selections used
@@ -36,12 +38,14 @@ const tooltip = d3.select("body")
 d3.json("./static/js/data/world-110m.json")
     .then(worldData => {
       const world = topojson.feature(worldData, worldData.objects.land)
-      const { updateScene, drawLocationOnSVG, updateLocations, updateElementStatus, resetInfo, centerGlobeTo } = renderWorld({ world })
+      const { updateScene, drawLocationOnSVG, updateLocations, updateElementStatus,
+              updateClickedElement, resetInfo, centerGlobeTo } = renderWorld({ world })
 
       // update global variables
       shared['drawLocations'] = drawLocationOnSVG
       shared['setLocations'] = updateLocations
       shared['showInfo'] = updateElementStatus
+      shared['setClickedElement'] = updateClickedElement
       shared['resetInfo'] = resetInfo
       shared['centerGlobeTo'] = centerGlobeTo
 
@@ -220,6 +224,7 @@ function renderWorld({ world }) {
             .attr('class', className)
             .classed("isTarget", d => d.isTarget)
             .classed("isSelection", d => d.isSelection)
+            .classed("isClicked", d => d.isClicked)
             .attr('d', pathSvg)
             .attr('stroke', 'black')
             .on('mouseover', function(d){
@@ -234,6 +239,7 @@ function renderWorld({ world }) {
             }),
         update => update.attr('d', pathSvg)
           .classed("isSelection", d => d.isSelection)
+          .classed("isClicked", d => d.isClicked)
       )
 
     // update tooltip status
@@ -244,6 +250,12 @@ function renderWorld({ world }) {
 
   function updateElementStatus(element){
     hoveredElement = element
+    updateTooltipStatus()
+    updateRaceInfoStatus()
+  }
+
+  function updateClickedElement(element){
+    clickedElement = element
     updateTooltipStatus()
     updateRaceInfoStatus()
   }
@@ -286,7 +298,8 @@ function renderWorld({ world }) {
   }
 
   function updateRaceInfoStatus() {
-    const element = displayedElement
+    // only modifies if no races are clicked
+    const element = clickedElement || displayedElement
     if (element) {
       // show info
       raceInfo.id.attr("value", element.id)//.html(element.id)
@@ -363,7 +376,8 @@ function renderWorld({ world }) {
         .transition()
   }
 
-  return { updateScene, drawLocationOnSVG, updateLocations, updateElementStatus, resetInfo, centerGlobeTo }
+  return { updateScene, drawLocationOnSVG, updateLocations,
+           updateElementStatus, updateClickedElement, resetInfo, centerGlobeTo }
 }
 
 

@@ -159,7 +159,7 @@ const addActivityInfo = ({ activity, data }) => {
 /****************************/
 
 
-const makePoint = (d, isTarget, isSelect) => ({
+const makePoint = (d, isTarget, isSelect, isClicked) => ({
   type: "Point", 
   coordinates: [d.lon, d.lat], 
   id: d.race,
@@ -171,6 +171,7 @@ const makePoint = (d, isTarget, isSelect) => ({
   date: d.date,
   isTarget: isTarget,
   isSelection: isSelect,
+  isClicked: isClicked,
   slots: d.wc_slots,
   fieldSize: d.entrants_count_avg,
   runScore: d.run_score,
@@ -302,37 +303,83 @@ async function showRecommendations(pickedRace){
         data: results.slice(1, results.length), // remove first row since it's the race itself,
         onMouseOver: (row, i, array) => {
           d3.select(array[i]).classed('highlighted', true)
-          const newLocations = locations.map((d, i) => ({ 
+          const newLocations = locations.map((d, j) => ({ 
             type: "Point", 
             coordinates: [d.lon, d.lat], 
             'id': d.race,
             'name': d.racename,
-            isTarget: i == 0,
-            isSelection: d.race == row.race
+            isTarget: j == 0,
+            isSelection: d.race == row.race,
+            isClicked: j == 0
+              ? false
+              : d3.select(array[j-1]).classed('clicked')
           })).reverse() 
     
           shared.setLocations({ cities: newLocations })
           shared.drawLocations()
           // show tooltip
           const element = locations.filter(d => d.race == row.race)[0]
-          shared.showInfo( makePoint(element, false, true))
-          shared.centerGlobeTo({lat: element.lat, lon: element.lon})
+          // if no raced is clicked in table, center globe on mouseOvered race
+          let isAlreadyCentered = d3.selectAll(array)._groups[0].reduce((acc, el) => 
+            acc || el.classList.contains('clicked'), false)
+          if (!isAlreadyCentered) {
+            shared.centerGlobeTo({lat: element.lat, lon: element.lon})
+          }
+          shared.showInfo( makePoint(element, false, true, element.isClicked))
 
         },
         onMouseOut: (row, i, array) => {
           d3.select(array[i]).classed('highlighted', false)
-          const newLocations = locations.map((d, i) => makePoint(d, i==0, false)).reverse() 
+          const newLocations = locations.map((d, j) => makePoint(
+            d, 
+            j==0, 
+            false, 
+            j == 0
+              ? false
+              : d3.select(array[j-1]).classed('clicked')
+          )).reverse() 
     
           shared.setLocations({ cities: newLocations })
           shared.drawLocations()
           shared.showInfo( null ) // hide tooltip
+        },
+        onClick: (row, i, array) => {
+          // highlight target
+          const target = d3.select(array[i])
+          target.classed('clicked', !target.classed('clicked'))
+          // and remove other highlights
+          for (j=0; j<array.length; j++) {
+            if (j != i) {
+              d3.select(array[j]).classed('clicked', false)
+            }
+          }
+          // d3.select(array[i]).classed('highlighted', false)
+          const newLocations = locations.map((d, j) => makePoint(
+            d, 
+            j==0, 
+            false, 
+            j==i+1 // need to offset for fact that target race is not displayed in table
+              ? target.classed('clicked') 
+              : false
+              )).reverse() 
+    
+          shared.setLocations({ cities: newLocations })
+          shared.drawLocations()
+          // center on selected race
+          const element = locations.filter(d => d.race == row.race)[0]
+          shared.centerGlobeTo({lat: element.lat, lon: element.lon})
+          
+          // update clicked element 
+          target.classed('clicked')
+            ? shared.setClickedElement(makePoint(element, false, false, true))
+            : shared.setClickedElement(null)
         }
       })
 
       return results
   })
 
-  const newLocations = locations.map((d, i) => makePoint(d, i==0, false)).reverse()
+  const newLocations = locations.map((d, i) => makePoint(d, i==0, false, false)).reverse()
   shared.resetInfo() 
   shared.setLocations({ cities: newLocations })
   shared.drawLocations()
