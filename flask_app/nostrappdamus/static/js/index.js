@@ -300,7 +300,7 @@ async function showRecommendations(pickedRace){
           {id: 'region', name: 'Region'}
         ],
         data: results.slice(1, results.length), // remove first row since it's the race itself,
-        mouseOver: (row, i, array) => {
+        onMouseOver: (row, i, array) => {
           d3.select(array[i]).classed('highlighted', true)
           const newLocations = locations.map((d, i) => ({ 
             type: "Point", 
@@ -319,7 +319,7 @@ async function showRecommendations(pickedRace){
           shared.centerGlobeTo({lat: element.lat, lon: element.lon})
 
         },
-        mouseOut: (row, i, array) => {
+        onMouseOut: (row, i, array) => {
           d3.select(array[i]).classed('highlighted', false)
           const newLocations = locations.map((d, i) => makePoint(d, i==0, false)).reverse() 
     
