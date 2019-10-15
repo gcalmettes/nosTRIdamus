@@ -300,7 +300,8 @@ function renderWorld({ world }) {
   function updateRaceInfoStatus() {
     // only modifies if no races are clicked
     const element = clickedElement || displayedElement
-    if (element && element != clickedElement) {
+    console.log(element)
+    if (element) {
       // show info
       raceInfo.id.attr("value", element.id)//.html(element.id)
       raceInfo.name.html(`Name: ${element.name}`)
