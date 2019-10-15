@@ -353,7 +353,8 @@ async function showRecommendations(pickedRace){
               d3.select(array[j]).classed('clicked', false)
             }
           }
-          // d3.select(array[i]).classed('highlighted', false)
+
+          // update locations
           const newLocations = locations.map((d, j) => makePoint(
             d, 
             j==0, 
