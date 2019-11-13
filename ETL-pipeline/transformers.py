@@ -55,13 +55,11 @@ class CleanUpNames(BaseEstimator, TransformerMixin):
         # city of worldchampionship70.3 is messed up
         new_city = X['city'].apply(lambda x: x if x != 'September 1 & 2'
                                    else 'Nelson Mandela Bay, South Africa')
-        changed_cols = ['race', 'racename', 'city']
-        return pd.concat([
-            new_race,
-            new_racename,
-            new_city,
-            X.loc[:, [col for col in X.columns if col not in changed_cols]]
-        ], axis=1)
+        return X.drop(['race', 'racename', 'city'], axis=1).assign(
+            racename=new_racename,
+            race=new_race,
+            city=new_city
+        )
 
 
 class AddCountryCode(BaseEstimator, TransformerMixin):
@@ -75,12 +73,13 @@ class AddCountryCode(BaseEstimator, TransformerMixin):
     def transform(self, X):
         races_geo_info = RacesGeoInfo().load()
 
-        country_codes = (
-            X['race']
-                .apply(lambda x: races_geo_info[x]['components']['ISO_3166-1_alpha-3'])
-                .rename('country_code')
+        country_codes = X['race'].apply(
+            lambda x: races_geo_info[x]['components']['ISO_3166-1_alpha-3']
         )
-        return pd.concat([X, country_codes], axis=1)
+
+        return X.assign(
+            country_code=country_codes
+        )
 
 
 class ExtractMonth(BaseEstimator, TransformerMixin):
@@ -92,8 +91,7 @@ class ExtractMonth(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        return pd.concat([X, X['date'].apply(lambda x: x.month).rename('month')],
-                         axis=1)
+        return X.assign(month=X['date'].apply(lambda x: x.month))
 
 
 class FillMissingRegions(BaseEstimator, TransformerMixin):
@@ -107,12 +105,13 @@ class FillMissingRegions(BaseEstimator, TransformerMixin):
     def transform(self, X):
         missing_regions = MissingRegions().load()
 
-        return pd.concat([
-            X.loc[:, [col for col in X.columns if col != 'region']],
-            X[['race', 'region']].transpose().apply(
-                lambda x: missing_regions[x['race']] if x['race'] in missing_regions else x['region']
-            ).rename('region')
-        ], axis=1)
+        return X.assign(
+            region=(
+                X[['race', 'region']]
+                .transpose()
+                .apply(lambda x: missing_regions[x['race']] if x['race'] in missing_regions else x['region'])
+            )
+        )
 
 
 class GetLatestDateAndLocation(BaseEstimator, TransformerMixin):
@@ -142,12 +141,17 @@ class GetLatestDateAndLocation(BaseEstimator, TransformerMixin):
         # make sure to have latest date and location from latest download
         descriptions = RacesDescription().load()
 
-        return pd.concat([
+        updated_info = (
             X.transpose()
                 .apply(lambda x: self.getDateAndLocation(x['race'], x['date'], x['month'], x['city'], descriptions))
-                .transpose(),
-            X.loc[:, [col for col in X.columns if col not in ['date', 'city', 'month']]]
-        ], axis=1)
+                .transpose()
+        )
+
+        return X.assign(
+            date=updated_info['date'],
+            month=updated_info['month'],
+            city=updated_info['city']
+        )
 
 
 class ComputeRaceHistoryStats(BaseEstimator, TransformerMixin):
@@ -341,13 +345,9 @@ class HasIronKids(BaseEstimator, TransformerMixin):
     def transform(self, X):
         races_parent = self.getIronKidsParentRaces()
 
-        hasIronKids = (
-            X['race']
-                .apply(lambda x: 1 if x in races_parent else 0)
-                .rename('ironkids_race')
+        return X.assign(
+            hasIronKids=X['race'].apply(lambda x: 1 if x in races_parent else 0)
         )
-
-        return pd.concat([X, hasIronKids], axis=1)
 
 
 class RaceAttractivity(BaseEstimator, TransformerMixin):
@@ -682,19 +682,19 @@ class DistanceToNearestShoreline(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        distance_to_nearest_shoreline = (
-            X[['lat', 'lon']]
-                .transpose()
-                .apply(lambda race: np.min(
-                    self.haversine(self.shorelines.lat,
-                                   self.shorelines.lon,
-                                   race['lat'],
-                                   race['lon']
-                                   ) / 1000  # in km
-                        ))
-        ).rename('distance_to_nearest_shoreline')
-
-        return pd.concat([X, distance_to_nearest_shoreline], axis=1)
+        return X.assign(
+            distance_to_nearest_shoreline=(
+                X[['lat', 'lon']]
+                    .transpose()
+                    .apply(lambda race: np.min(
+                        self.haversine(self.shorelines.lat,
+                                       self.shorelines.lon,
+                                       race['lat'],
+                                       race['lon']
+                                       ) / 1000  # in km
+                            ))
+            )
+        )
 
 
 class DistanceToNearestAirport(BaseEstimator, TransformerMixin):
@@ -845,18 +845,19 @@ class RunElevationMap(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        run_elevation_map = (
-            X['race']
-                .map(lambda race:
-                    json.dumps([{"x": x, "y": y} for x, y in zip(
-                        # resample to 500 points
-                        np.linspace(0, np.max(json.loads(X.loc[X['race'] == race, 'map'].values[0])['run']['distance']), self.n_points),
-                      signal.resample(json.loads(X.loc[X['race'] == race, 'map'].values[0])['run']['elevation'], self.n_points)
-                    )])
+        return X.assign(
+            run_elevation_map=(
+                X['race']
+                    .map(lambda race:
+                        json.dumps([{"x": x, "y": y} for x, y in zip(
+                            # resample to 500 points
+                            np.linspace(0, np.max(json.loads(X.loc[X['race'] == race, 'map'].values[0])['run']['distance']), self.n_points),
+                          signal.resample(json.loads(X.loc[X['race'] == race, 'map'].values[0])['run']['elevation'], self.n_points)
+                        )])
 
-                )
-        ).rename('run_elevation_map')
-        return pd.concat([X, run_elevation_map], axis=1)
+                    )
+            )
+        )
 
 
 class BikeElevationMap(BaseEstimator, TransformerMixin):
@@ -869,18 +870,19 @@ class BikeElevationMap(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        bike_elevation_map = (
-            X['race']
-                .map(lambda race:
-                    json.dumps([{"x": x, "y": y} for x, y in zip(
-                        # resample to 500 points
-                        np.linspace(0, np.max(json.loads(X.loc[X['race'] == race, 'map'].values[0])['bike']['distance']), self.n_points),
-                      signal.resample(json.loads(X.loc[X['race'] == race, 'map'].values[0])['bike']['elevation'], self.n_points)
-                    )])
+        return X.assign(
+            bike_elevation_map=(
+                X['race']
+                    .map(lambda race:
+                        json.dumps([{"x": x, "y": y} for x, y in zip(
+                            # resample to 500 points
+                            np.linspace(0, np.max(json.loads(X.loc[X['race'] == race, 'map'].values[0])['bike']['distance']), self.n_points),
+                          signal.resample(json.loads(X.loc[X['race'] == race, 'map'].values[0])['bike']['elevation'], self.n_points)
+                        )])
 
-                )
-        ).rename('bike_elevation_map')
-        return pd.concat([X, bike_elevation_map], axis=1)
+                    )
+            )
+        )
 
 
 class IsHalf(BaseEstimator, TransformerMixin):
