@@ -12,6 +12,4 @@
 #     # name = scrapy.Field()
 #     name = scrapy.Field()
 #     item_category = scrapy.Field()
-
-    
-#     
+#

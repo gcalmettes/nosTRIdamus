@@ -6,7 +6,7 @@ import scrapy
 from scrapy.spidermiddlewares.httperror import HttpError
 from twisted.internet.error import DNSLookupError
 from twisted.internet.error import TimeoutError, TCPTimedOutError
-  
+
 # use to select only specific races.
 # if no selection, still declare the global variable as it is used for conditional filtering in parse_results.
 race_selection = None

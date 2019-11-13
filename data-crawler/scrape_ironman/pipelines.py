@@ -6,15 +6,19 @@ from scrapy.exporters import JsonLinesItemExporter
 # folders where to save
 config = {
     "race_folder": "data/races",
-    "result_folder": "data/results" 
+    "result_folder": "data/results"
 }
 
 # create folders if they don't exist
 for folder in config.values():
     os.makedirs(folder, exist_ok=True)
 
+
 class RaceResultsExportPipeline(object):
-    """Distribute items across multiple json files according to their 'category' field"""
+    """
+    Distribute items across multiple json files according
+    to their 'category' field
+    """
 
     def open_spider(self, spider):
         # keep track of all the files created
@@ -54,61 +58,61 @@ class RaceResultsExportPipeline(object):
         return self.all_exporters[file]
 
     def format_item(self, item):
-      category = item['item_category']
-      if category == 'race_info':
-          try:
-              month,day,year = item['date'].split(' ')
-              day = re.search('(\d+)', day).group(1)
-          except:
-              month = day = year = None
-          try:
-              if 'inactive' not in item['website']:
-                  root,region,race_type,iron_name = re.match(
-                      '(.*)/(.*)/(.*)/(.*).asp', item['website']).groups()
-              else:
-                  root,region,race_type,iron_name = re.match(
-                      '(.*)/(.*)/(.*)/inactive/(.*).asp', item['website']).groups()
-          except:
-              race_type = region = None
-          formatted_item = {
-              'id': item['race_id'],
-              'name': item['name'],
-              'type': race_type,
-              'region': region,
-              'date': item['date'],
-              'day': day,
-              'month': month,
-              'year': year,
-              'location': item['location'],
-              'website': item['website'],
-              'img_url': item['images'][0]['url'],
-              'img_path': item['images'][0]['path']
-          }
+        category = item['item_category']
+        if category == 'race_info':
+            try:
+                month,day,year = item['date'].split(' ')
+                day = re.search('(\d+)', day).group(1)
+            except:
+                month = day = year = None
+            try:
+                if 'inactive' not in item['website']:
+                    root,region,race_type,iron_name = re.match(
+                        '(.*)/(.*)/(.*)/(.*).asp', item['website']).groups()
+                else:
+                    root,region,race_type,iron_name = re.match(
+                        '(.*)/(.*)/(.*)/inactive/(.*).asp', item['website']).groups()
+            except:
+                race_type = region = None
+            formatted_item = {
+                'id': item['race_id'],
+                'name': item['name'],
+                'type': race_type,
+                'region': region,
+                'date': item['date'],
+                'day': day,
+                'month': month,
+                'year': year,
+                'location': item['location'],
+                'website': item['website'],
+                'img_url': item['images'][0]['url'],
+                'img_path': item['images'][0]['path']
+            }
 
-      elif category == 'race_description':
-          formatted_item = {
-              key: val for key,val in item.items() 
-                  if key not in ['item_category']
-          }
+        elif category == 'race_description':
+            formatted_item = {
+                key: val for key, val in item.items()
+                     if key not in ['item_category']
+            }
 
-      elif category == 'result_entry':
-          formatted_item = {
-              key: val for key,val in item.items() 
-                  if key not in ['item_category', 'race_id', 'race_date']
-          }
-      elif category == 'athletes_count':
-          race_id = item['race_id']
-          race_date = item['race_date']
-          count = item['count']
-          race_region = item['race_region']
-          formatted_item = {
-            'id': race_id,
-            'date': race_date,
-            'region': race_region,
-            'count': count
-          }
+        elif category == 'result_entry':
+            formatted_item = {
+                key: val for key, val in item.items()
+                     if key not in ['item_category', 'race_id', 'race_date']
+            }
+        elif category == 'athletes_count':
+            race_id = item['race_id']
+            race_date = item['race_date']
+            count = item['count']
+            race_region = item['race_region']
+            formatted_item = {
+                'id': race_id,
+                'date': race_date,
+                'region': race_region,
+                'count': count
+            }
 
-      return formatted_item
+        return formatted_item
 
     def process_item(self, item, spider):
         # depending on category received, save in appropriate file
@@ -132,11 +136,10 @@ class RaceResultsExportPipeline(object):
 
         else:
             if item.get('item_category') == 'result_entry':
-                exporter= self.get_exporter_for_item(item, hasDate=True)
+                exporter =  self.get_exporter_for_item(item, hasDate=True)
             else:
-                exporter= self.get_exporter_for_item(item, hasDate=False)
+                exporter = self.get_exporter_for_item(item, hasDate=False)
             formatted_item = self.format_item(item)
             exporter.export_item(formatted_item)
 
-        return #item
-
+        return  # item
